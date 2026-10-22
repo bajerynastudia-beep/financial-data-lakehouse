@@ -52,6 +52,14 @@ def _safe(name: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]", "_", name)
 
 
+def _as_date(value: Any) -> date | None:
+    """Znacznik przyrostu z Bronze (tekst) -> data; nieczytelna wartość = brak znacznika (pełne ładowanie)."""
+    try:
+        return date.fromisoformat(str(value)[:10]) if value else None
+    except ValueError:
+        return None
+
+
 # --------------------------------------------------------------------------------------
 # 0. Przygotowanie środowiska i test połączenia ze źródłami
 # --------------------------------------------------------------------------------------
@@ -109,7 +117,8 @@ def ingest_nbp(spark: SparkSession, cfg: Config, run_id: str, mode: str = "incre
     res = StepResult("ingest_nbp")
     rows: list[dict] = []
     for cur in src["currencies"]:
-        start = (date.fromisoformat(wm[cur]) + timedelta(days=1)) if wm.get(cur) else date.fromisoformat(s["history_start"])
+        last = _as_date(wm.get(cur))
+        start = last + timedelta(days=1) if last else date.fromisoformat(s["history_start"])
         for a, b in nbp.date_chunks(start, end, src["max_days_per_request"]):
             try:
                 raw = nbp.fetch_chunk(http_get, src["base_url"], cur, a, b)
@@ -142,10 +151,8 @@ def ingest_stooq(spark: SparkSession, cfg: Config, run_id: str, mode: str = "inc
     res = StepResult("ingest_stooq")
     rows: list[dict] = []
     for ticker in cfg.tickers:
-        if wm.get(ticker):
-            start = date.fromisoformat(wm[ticker]) - timedelta(days=src["overlap_days"])
-        else:
-            start = date.fromisoformat(s["history_start"])
+        last = _as_date(wm.get(ticker))
+        start = last - timedelta(days=src["overlap_days"]) if last else date.fromisoformat(s["history_start"])
         try:
             text = stooq.fetch_daily(http_get, src["base_url"], ticker, start, end, api_key)
             parsed = stooq.parse_csv(text, ticker)
