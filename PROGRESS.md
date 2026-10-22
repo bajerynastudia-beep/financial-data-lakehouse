@@ -24,8 +24,7 @@
 
 ## Tydzień 3 (plan)
 - Job w Databricks z harmonogramem i powiadomieniem e-mail o błędzie; obserwacja kilku uruchomień przyrostowych.
-- Dashboard AI/BI odpowiadający na pytania P1–P4 ([docs/dashboard.md](docs/dashboard.md)), eksport do repozytorium.
-- Dashboard AI/BI (decyzja D-12), eksport do `dashboards/`.
+- Dashboard AI/BI (decyzja D-12) odpowiadający na pytania P1–P4 ([docs/dashboard.md](docs/dashboard.md)), eksport do repozytorium.
 
 ## Tydzień 4 (plan)
 - Test uruchomienia według README na czystym koncie / schemacie.
