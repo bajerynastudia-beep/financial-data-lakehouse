@@ -1,0 +1,1 @@
+"""Automatyczne testy jakości danych."""
