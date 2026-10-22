@@ -1,1 +1,4 @@
-
+# Zależności potoku (instalowane w notatnikach przez %pip install -r ../requirements.txt).
+# PySpark i Delta Lake dostarcza środowisko Databricks (serverless).
+requests>=2.31
+PyYAML>=6.0

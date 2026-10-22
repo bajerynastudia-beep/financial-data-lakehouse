@@ -1,0 +1,20 @@
+# Słownik instrumentów. ticker = symbol w serwisie Stooq.
+# sec_cik = numer CIK spółki w SEC EDGAR (tylko spółki z USA – źródło EPS do wskaźnika P/E).
+# Spółki z USA wybrano spośród firm BEZ splitu akcji od 2019 r. (patrz docs/decyzje.md, D-05).
+instruments:
+  # --- GPW (PLN) ---
+  - {ticker: pko,     name: PKO Bank Polski,   market: GPW,    currency: PLN, type: stock, sector: Banki}
+  - {ticker: pkn,     name: Orlen,             market: GPW,    currency: PLN, type: stock, sector: Paliwa i energia}
+  - {ticker: kgh,     name: KGHM,              market: GPW,    currency: PLN, type: stock, sector: Surowce}
+  - {ticker: pzu,     name: PZU,               market: GPW,    currency: PLN, type: stock, sector: Ubezpieczenia}
+  - {ticker: cdr,     name: CD Projekt,        market: GPW,    currency: PLN, type: stock, sector: Gry}
+  # --- USA (USD) ---
+  - {ticker: msft.us, name: Microsoft,         market: NASDAQ, currency: USD, type: stock, sector: Technologia,       sec_cik: 789019}
+  - {ticker: ko.us,   name: Coca-Cola,         market: NYSE,   currency: USD, type: stock, sector: Dobra konsumpcyjne, sec_cik: 21344}
+  - {ticker: jpm.us,  name: JPMorgan Chase,    market: NYSE,   currency: USD, type: stock, sector: Banki,             sec_cik: 19617}
+  - {ticker: pg.us,   name: Procter & Gamble,  market: NYSE,   currency: USD, type: stock, sector: Dobra konsumpcyjne, sec_cik: 80424}
+  - {ticker: xom.us,  name: Exxon Mobil,       market: NYSE,   currency: USD, type: stock, sector: Paliwa i energia,  sec_cik: 34088}
+  # --- Indeksy (punkty odniesienia, nie wchodzą do portfela) ---
+  - {ticker: wig20,   name: WIG20,             market: GPW,    currency: PLN, type: index}
+  - {ticker: ^spx,    name: S&P 500,           market: USA,    currency: USD, type: index}
+  - {ticker: ^dax,    name: DAX,               market: XETRA,  currency: EUR, type: index}

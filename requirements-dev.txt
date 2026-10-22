@@ -1,0 +1,5 @@
+# Zależności do testów automatycznych uruchamianych lokalnie i w GitHub Actions.
+# Testy transformacji wymagają Javy 17 (PySpark).
+-r requirements.txt
+pyspark==3.5.3
+pytest>=8.0

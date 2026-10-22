@@ -1,0 +1,54 @@
+# Ustawienia potoku. Plik NIE zawiera sekretów.
+# Sekrety (klucz API Stooq, User-Agent dla SEC) są czytane z Databricks secret scope
+# albo ze zmiennych środowiskowych – patrz .env.example i README.md.
+
+# Unity Catalog: w Databricks Free Edition domyślny katalog nazywa się "workspace".
+catalog: workspace
+schemas:
+  bronze: fin_bronze      # dane surowe (bez zmian treści) + metadane techniczne
+  silver: fin_silver      # dane oczyszczone, otypowane, bez duplikatów
+  gold: fin_gold          # model analityczny pod dashboard
+  ops: fin_ops            # wyniki testów jakości i rejestr uruchomień potoku
+
+# Volume na surowe pliki (JSON/CSV dokładnie tak, jak przyszły ze źródła)
+raw_volume: raw           # -> /Volumes/<catalog>/<schemas.bronze>/raw
+
+# Od kiedy pobieramy historię przy pierwszym (pełnym) ładowaniu
+history_start: "2019-01-01"
+
+sources:
+  nbp:
+    base_url: "https://api.nbp.pl/api/exchangerates/rates/a"
+    currencies: [USD, EUR]
+    max_days_per_request: 90      # limit API to 93 dni – zostawiamy margines
+  stooq:
+    base_url: "https://stooq.com/q/d/l/"
+    overlap_days: 7               # przy ładowaniu przyrostowym pobieramy ostatni tydzień ponownie (korekty notowań)
+  sec:
+    base_url: "https://data.sec.gov/api/xbrl/companyfacts"
+    concept: EarningsPerShareDiluted
+    unit: "USD/shares"
+    pause_between_requests_s: 0.3 # SEC dopuszcza max 10 zapytań/s
+
+secrets:
+  scope: fin-lakehouse
+  keys:
+    stooq_api_key: stooq_api_key
+    sec_user_agent: sec_user_agent
+
+http:
+  timeout_s: 30
+  max_retries: 4
+  backoff_s: 2
+
+quality:
+  freshness_max_days: 7           # notowania starsze niż tyle dni -> ostrzeżenie
+  fx_rate_min: 0.5                # dozwolony zakres kursu średniego NBP (PLN za 1 jednostkę)
+  fx_rate_max: 10.0
+  max_abs_daily_return: 0.5       # zmiana dzienna > 50% -> podejrzenie błędu / splitu
+  split_ratio_threshold: 1.9      # ten sam okres EPS raportowany z wartościami różniącymi się >1.9x -> podejrzenie splitu
+
+analytics:
+  risk_free_rate: 0.0             # stopa wolna od ryzyka do wskaźnika zwrot/ryzyko (założenie)
+  trading_days_per_year: 252
+  rolling_window_days: 30

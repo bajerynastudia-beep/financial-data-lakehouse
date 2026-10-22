@@ -1,0 +1,17 @@
+# Przykładowy portfel analizowany przez odbiorcę (analityk w polskiej firmie inwestycyjnej).
+# Strategia: kup i trzymaj – kapitał dzielony według wag w dniu startu, bez rebalancingu.
+# Wagi muszą sumować się do 1 (sprawdzane automatycznie przy starcie potoku).
+name: Portfel przykładowy GPW + USA
+start_date: "2019-01-02"
+initial_capital_pln: 100000
+positions:
+  - {ticker: pko,     weight: 0.10}
+  - {ticker: pkn,     weight: 0.10}
+  - {ticker: kgh,     weight: 0.10}
+  - {ticker: pzu,     weight: 0.10}
+  - {ticker: cdr,     weight: 0.10}
+  - {ticker: msft.us, weight: 0.10}
+  - {ticker: ko.us,   weight: 0.10}
+  - {ticker: jpm.us,  weight: 0.10}
+  - {ticker: pg.us,   weight: 0.10}
+  - {ticker: xom.us,  weight: 0.10}
