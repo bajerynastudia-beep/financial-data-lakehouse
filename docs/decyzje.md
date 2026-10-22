@@ -2,21 +2,23 @@
 
 Format: decyzja, rozważane alternatywy, uzasadnienie. Kolumna **Status**: decyzje zaproponowane z pomocą AI
 zespół potwierdza (✅) albo zmienia – decyzje projektowe należą do autorów projektu.
+22.10.2026 zespół przyjął zasadę: **przy równorzędnych opcjach wybieramy rozwiązanie prostsze** (łatwiejsze
+do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisujemy jako kierunki rozwoju.
 
 | ID | Data | Decyzja | Status |
 |---|---|---|---|
 | D-01 | 2026-10-08 | Platforma: Databricks Free Edition + Delta Lake | ✅ zespół |
 | D-02 | 2026-10-22 | Odbiorca: zespół inwestycyjny funduszu; źródła: GPW + USA, P/E z SEC | ✅ zespół |
-| D-03 | 2026-10-22 | Architektura medalionowa + schemat `fin_ops` | do potwierdzenia |
-| D-04 | 2026-10-22 | Notowania ze Stooq (API z kluczem) | do potwierdzenia |
-| D-05 | 2026-10-22 | P/E z rocznego EPS z SEC EDGAR, bez look-ahead; spółki bez splitów | do potwierdzenia |
-| D-06 | 2026-10-22 | Kurs średni NBP z dnia notowania, uzupełnianie ostatnim kursem | do potwierdzenia |
-| D-07 | 2026-10-22 | Portfel modelowy: kup i trzymaj, równe wagi | do potwierdzenia |
-| D-08 | 2026-10-22 | Ładowanie: przyrostowe Bronze/Silver, pełna przebudowa Gold | do potwierdzenia |
-| D-09 | 2026-10-22 | Bronze jako tekst + surowe pliki w Volume | do potwierdzenia |
-| D-10 | 2026-10-22 | Własny moduł testów jakości w PySpark | do potwierdzenia |
-| D-11 | 2026-10-22 | Logika w pakiecie `src/`, cienkie notatniki, CI w GitHub Actions | do potwierdzenia |
-| D-12 | – | Aplikacja: dashboard AI/BI (tydzień 3) | do decyzji |
+| D-03 | 2026-10-22 | Architektura medalionowa + schemat `fin_ops` | ✅ zespół (wariant prostszy) |
+| D-04 | 2026-10-22 | Notowania ze Stooq (API z kluczem) | ✅ zespół (wariant prostszy) |
+| D-05 | 2026-10-22 | P/E z rocznego EPS z SEC EDGAR, bez look-ahead; spółki bez splitów | ✅ zespół (wariant prostszy) |
+| D-06 | 2026-10-22 | Kurs średni NBP z dnia notowania, uzupełnianie ostatnim kursem | ✅ zespół (wariant prostszy) |
+| D-07 | 2026-10-22 | Portfel modelowy: kup i trzymaj, równe wagi | ✅ zespół (wariant prostszy) |
+| D-08 | 2026-10-22 | Ładowanie: przyrostowe Bronze/Silver, pełna przebudowa Gold | ✅ zespół (wariant prostszy) |
+| D-09 | 2026-10-22 | Bronze jako tekst + surowe pliki w Volume | ✅ zespół (wariant prostszy) |
+| D-10 | 2026-10-22 | Własny moduł testów jakości w PySpark | ✅ zespół (wariant prostszy) |
+| D-11 | 2026-10-22 | Logika w pakiecie `src/`, cienkie notatniki, CI w GitHub Actions | ✅ zespół (wariant prostszy) |
+| D-12 | 2026-10-22 | Aplikacja: dashboard AI/BI w Databricks | ✅ zespół (wariant prostszy) |
 
 ---
 
@@ -81,6 +83,8 @@ zespół potwierdza (✅) albo zmienia – decyzje projektowe należą do autor�
 - **Uzasadnienie:** kod w modułach można testować automatycznie (GitHub Actions uruchamia pytest z PySpark przy
   każdym pushu), łatwiej go przeglądać w Git; notatniki służą do uruchamiania i prezentacji.
 
-### D-12. Aplikacja (do decyzji w tygodniu 3)
-- **Opcje:** dashboard AI/BI w Databricks (najprościej, dane bezpośrednio z Gold, eksport do repozytorium jako
-  `.lvdash.json`); aplikacja Streamlit jako Databricks App (więcej interakcji, np. analiza scenariuszy kursu USD/PLN).
+### D-12. Aplikacja: dashboard AI/BI w Databricks
+- **Alternatywa:** aplikacja Streamlit jako Databricks App (więcej interakcji, np. analiza scenariuszy kursu USD/PLN).
+- **Uzasadnienie:** dashboard czyta tabele Gold bezpośrednio, nie wymaga pisania ani hostowania aplikacji,
+  ma filtry i odświeżanie; eksportujemy go do repozytorium jako `.lvdash.json`, więc oceniający może go zaimportować.
+  Streamlit – kierunek rozwoju (analiza scenariuszy).

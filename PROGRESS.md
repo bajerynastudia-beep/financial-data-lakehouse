@@ -19,12 +19,13 @@
   - notatniki 00–07, job jako kod (`databricks.yml`), dokumentacja w `docs/`.
 - **Do zrobienia przez zespół w tym tygodniu:** sekrety (klucz Stooq, User-Agent SEC), uruchomienie `00_setup`
   i pierwszego pełnego ładowania w Databricks, weryfikacja wyników w `07_analysis`, przegląd kodu,
-  potwierdzenie decyzji w `docs/decyzje.md`, tag `tydzien-2`.
+  tag `tydzien-2`.
+- Decyzje projektowe D-03–D-12 przyjęte zgodnie z zasadą „przy równorzędnych opcjach – rozwiązanie prostsze” (22.10).
 
 ## Tydzień 3 (plan)
 - Job w Databricks z harmonogramem i powiadomieniem e-mail o błędzie; obserwacja kilku uruchomień przyrostowych.
 - Dashboard AI/BI odpowiadający na pytania P1–P4 ([docs/dashboard.md](docs/dashboard.md)), eksport do repozytorium.
-- Decyzja D-12 (dashboard AI/BI vs Streamlit).
+- Dashboard AI/BI (decyzja D-12), eksport do `dashboards/`.
 
 ## Tydzień 4 (plan)
 - Test uruchomienia według README na czystym koncie / schemacie.
