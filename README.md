@@ -1,9 +1,9 @@
-# Financial Data Lakehouse – screening spółek dla zespołu inwestycyjnego funduszu
+# Financial Data Lakehouse – analiza rentowności i ryzyka portfela spółek USA
 
 ![testy](https://github.com/bajerynastudia-beep/financial-data-lakehouse/actions/workflows/tests.yml/badge.svg)
 
 Projekt zaliczeniowy z Inżynierii danych. Potok danych w **Databricks + Delta Lake**, który codziennie pobiera
-kursy walut (NBP), notowania spółek z GPW i USA (Stooq) oraz wyniki finansowe spółek z USA (SEC EDGAR),
+kursy walut (NBP), notowania spółek USA (Financial Modeling Prep, FMP) oraz wyniki finansowe USA (SEC EDGAR),
 oczyszcza je, kontroluje jakość i buduje model analityczny dla dashboardu.
 
 > Analiza danych historycznych na potrzeby projektu – nie stanowi rekomendacji inwestycyjnej.
@@ -11,7 +11,7 @@ oczyszcza je, kontroluje jakość i buduje model analityczny dla dashboardu.
 ## Cel i odbiorca
 
 **Odbiorca:** zespół inwestycyjny (analitycy, zarządzający) polskiego funduszu, który rozlicza się w PLN
-i inwestuje w spółki z GPW i USA. **Proces:** cykliczny przegląd listy obserwacyjnej i portfela modelowego.
+i inwestuje w spółki z USA. **Proces:** cykliczny przegląd listy obserwacyjnej i portfela modelowego.
 
 | # | Pytanie biznesowe |
 |---|---|
@@ -26,7 +26,7 @@ Szczegóły (4 perspektywy): [docs/kontekst_i_perspektywy.md](docs/kontekst_i_pe
 
 ```
 NBP (JSON) ─┐                 fin_bronze            fin_silver                     fin_gold
-Stooq (CSV) ├─> Volume raw ─> tabele tekstowe ─> typy, MERGE, kwarantanna ─> [testy jakości] ─> model ─> dashboard
+FMP (JSON) ├─> Volume raw ─> tabele tekstowe ─> typy, MERGE, kwarantanna ─> [testy jakości] ─> model ─> dashboard
 SEC (JSON) ─┘                                                                   │
                                                               fin_ops: dq_results, pipeline_runs
 ```
@@ -39,10 +39,10 @@ decyzje: [docs/decyzje.md](docs/decyzje.md) · ograniczenia: [docs/ograniczenia.
 ```
 config/                  konfiguracja bez sekretów
   settings.yml           katalog, schematy, źródła, progi testów jakości
-  instruments.yml        spółki i indeksy (ticker Stooq, waluta, CIK w SEC)
+  instruments.yml        spółki i indeksy (ticker FMP, waluta, CIK w SEC)
   portfolio.yml          portfel modelowy (wagi, data startu, kapitał)
 src/fin_lakehouse/       logika potoku (pakiet Pythona)
-  sources/               pobieranie: nbp.py, stooq.py, sec.py
+  sources/               pobieranie: nbp.py, fmp.py, sec.py
   transform/             silver.py (Bronze->Silver), gold.py (model analityczny)
   quality/checks.py      reguły jakości danych
   pipeline.py            kroki potoku wywoływane z notatników
@@ -60,6 +60,17 @@ docs/                    dokumentacja projektu
 PROGRESS.md              postęp tydzień po tygodniu
 ```
 
+## Ważna zmiana źródła danych (30.10.2026)
+Stooq odmówił dostępu do CSV (`Odmowa dostępu`). Migracja wykorzystuje FMP (sprawdzone pobieranie AAPL w Databricks).
+Obecny portfel zawiera **5 spółek USA**, z wagami po **20%**. Notowania FMP mogą być ograniczone historycznie na bezpłatnym planie:
+parametr `history_start: "2023-01-01"` jest **prośbą o zakres**, nie gwarancją, że API zwróci całą historię.
+Nie sprawdzono jeszcze end-to-end pracy nowego pipeline'u w docelowym workspace Databricks.
+
+Wymagane sekrety (w scope `fin-lakehouse`): `fmp_api_key`, `sec_user_agent`.
+Nie zapisuj API key w notebooku, .env ani GitHubie. **Istniejący katalog `workspace.bronze/silver/gold` pozostaje nietknięty**:
+nowy pipeline korzysta z `workspace.fin_bronze/fin_silver/fin_gold`.
+Instrukcja migracji i lista możliwych błędów: [docs/migracja_fmp.md](docs/migracja_fmp.md).
+
 ## Instalacja i uruchomienie krok po kroku
 
 ### 1. Konto i repozytorium
@@ -73,7 +84,7 @@ Potrzebne dwa sekrety w scope `fin-lakehouse`:
 
 | Klucz | Wartość | Skąd |
 |---|---|---|
-| `stooq_api_key` | klucz API Stooq | https://stooq.com/q/d/?s=spy.us&get_apikey |
+| `fmp_api_key` | klucz API FMP | https://site.financialmodelingprep.com/developer/docs |
 | `sec_user_agent` | nazwa i e-mail, np. `Projekt ID jan.kowalski@example.com` | wymóg SEC EDGAR |
 
 Za pomocą Databricks CLI (na swoim komputerze; instalacja: https://docs.databricks.com/dev-tools/cli/install –
@@ -81,18 +92,18 @@ np. Windows: `winget install Databricks.DatabricksCLI`, macOS: `brew tap databri
 ```bash
 databricks auth login --host https://<twoj-workspace>.cloud.databricks.com
 databricks secrets create-scope fin-lakehouse
-databricks secrets put-secret fin-lakehouse stooq_api_key      # wklej klucz
+databricks secrets put-secret fin-lakehouse fmp_api_key      # wklej klucz
 databricks secrets put-secret fin-lakehouse sec_user_agent     # wklej nazwę i e-mail
 ```
 Poza Databricks (np. lokalnie) sekrety można podać jako zmienne środowiskowe – wzór w `.env.example`.
 
 ### 3. Przygotowanie i test źródeł
 Otwórz `notebooks/00_setup` i uruchom (**Run all**). Notatnik tworzy schematy i Volume, a tabela na końcu
-pokazuje status każdego źródła (NBP, Stooq, SEC). Wszystkie muszą mieć status **OK**.
+pokazuje status każdego źródła (NBP, FMP, SEC). Wszystkie muszą mieć status **OK**.
 
 ### 4. Pierwsze (pełne) ładowanie
-**Opcja A – notatniki:** uruchom kolejno `01_ingest_nbp`, `02_ingest_stooq`, `03_ingest_sec`, `04_silver`,
-`05_quality_silver`, `06_gold` z widżetem `mode = full` (pierwsze ładowanie pobiera historię od 2019 r.).
+**Opcja A – notatniki:** uruchom kolejno `01_ingest_nbp`, `02_ingest_fmp`, `03_ingest_sec`, `04_silver`,
+`05_quality_silver`, `06_gold` z widżetem `mode = full` (pierwsze ładowanie pobiera historię od 2023 r.).
 
 **Opcja B – job jako kod (Databricks CLI):**
 ```bash
@@ -127,11 +138,11 @@ Pełna lista: [docs/architektura.md](docs/architektura.md#testy-jakości-danych)
 Zgodnie z zasadami projektu opisujemy zakres użycia narzędzi AI:
 - **ChatGPT** – propozycje tematów projektu i wstępny plan.
 - **Claude (Anthropic)** – na podstawie wymagań projektu i decyzji zespołu (temat, odbiorca: fundusz inwestycyjny,
-  zakres: GPW + USA, P/E z danych SEC) wygenerował: kod pakietu `src/`, notatniki, testy, konfigurację, definicję
+  zakres pierwotny: GPW + USA, P/E z danych SEC) wygenerował: kod pakietu `src/`, notatniki, testy, konfigurację, definicję
   joba, workflow CI oraz szkice dokumentacji w `docs/`. Commity przygotowane przez AI mają w opisie
   `Co-Authored-By: Claude`.
 - **Zespół:** wybór tematu, odbiorcy i źródeł, uruchomienie i weryfikacja potoku w Databricks, przegląd kodu,
-  potwierdzenie decyzji w `docs/decyzje.md`, dashboard **[do uzupełnienia przez zespół]**.
+  potwierdzenie decyzji w `docs/decyzje.md`, dashboard **[nadal do zbudowania i przetestowania w Databricks]**.
 
 Autorzy odpowiadają za całe rozwiązanie; wyniki i kod wygenerowane przez AI weryfikujemy uruchomieniem,
 testami i przeglądem.

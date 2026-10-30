@@ -29,3 +29,12 @@
 ## Tydzień 4 (plan)
 - Test uruchomienia według README na czystym koncie / schemacie.
 - Uzupełnienie dokumentacji (fragmenty „do uzupełnienia”), podsumowanie, prezentacja i demonstracja na żywo.
+
+## 30.10.2026 – zmiana dostawcy notowań (realizacja)
+- Poprzedni endpoint Stooq nie działał: HTML zamiast CSV oraz „Odmowa dostępu” w przeglądarce.
+- Dodano FMP jako dostawcę JSON EOD; przerobiono `02_ingest_fmp.py`, `pipeline.py`, `databricks.yml` i testy.
+- Zakres bieżący: pięć spółek USA, portfel 5 × 20%, NBP USD/PLN + SEC EPS.
+- Konieczne do zrobienia: podanie bezpiecznych sekretów `fmp_api_key`, `sec_user_agent` w Databricks;
+  test `00_setup`, pełne ładowanie, testy Silver/Gold, uruchomienie i eksport dashboardu AI/BI.
+- Historia od 2023 r. zależy od uprawnień bezpłatnego planu FMP; brak potwierdzenia pokrycia z API.
+- Zmiana kodu wykonana przy wsparciu ChatGPT; do zweryfikowania przez autorkę projektu w Databricks.

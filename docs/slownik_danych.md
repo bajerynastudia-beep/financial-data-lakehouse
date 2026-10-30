@@ -7,7 +7,7 @@ Kolumny techniczne: `_ingest_ts` – czas pobrania (UTC), `_source_file` – śc
 ## Bronze (`fin_bronze`) – dane surowe
 
 Wszystkie kolumny biznesowe zapisane jako **tekst, bez zmian** względem źródła. Surowe pliki:
-`/Volumes/workspace/fin_bronze/raw/{nbp|stooq|sec}/ingest_date=RRRR-MM-DD/…`.
+`/Volumes/workspace/fin_bronze/raw/{nbp|fmp|sec}/ingest_date=RRRR-MM-DD/…`.
 
 ### `nbp_fx_rates` – źródło: API NBP, tabela A
 | Kolumna | Znaczenie | Pole źródła |
@@ -19,10 +19,10 @@ Wszystkie kolumny biznesowe zapisane jako **tekst, bez zmian** względem źród�
 | effective_date | data publikacji kursu | `rates[].effectiveDate` |
 | mid | kurs średni (PLN za 1 jednostkę) | `rates[].mid` |
 
-### `stooq_prices` – źródło: Stooq, CSV dzienny
+### `fmp_prices` – źródło: FMP, JSON EOD
 | Kolumna | Znaczenie |
 |---|---|
-| ticker | symbol instrumentu w Stooq (z `config/instruments.yml`) |
+| ticker | symbol spółki w FMP (z `config/instruments.yml`) |
 | date | data sesji |
 | open, high, low, close | cena otwarcia, najwyższa, najniższa, zamknięcia (waluta notowania) |
 | volume | wolumen (dla indeksów zwykle brak) |

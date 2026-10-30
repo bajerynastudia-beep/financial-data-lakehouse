@@ -4,14 +4,14 @@
 flowchart LR
     subgraph Źródła
         NBP["API NBP<br/>kursy średnie USD, EUR<br/>(JSON)"]
-        STQ["Stooq<br/>notowania dzienne<br/>(CSV, klucz API)"]
+        STQ["FMP<br/>notowania dzienne<br/>(JSON, klucz API)"]
         SEC["SEC EDGAR<br/>EPS ze sprawozdań 10-K/10-Q<br/>(JSON)"]
     end
 
     subgraph Databricks["Databricks (serverless) · Unity Catalog · Delta Lake"]
         subgraph B["fin_bronze"]
             VOL[("Volume raw/<br/>surowe pliki bez zmian")]
-            BT["nbp_fx_rates<br/>stooq_prices<br/>sec_eps_facts<br/>(tekst + metadane)"]
+            BT["nbp_fx_rates<br/>fmp_prices<br/>sec_eps_facts<br/>(tekst + metadane)"]
         end
         subgraph S["fin_silver"]
             ST["fx_rates · prices · eps_facts<br/>typy, deduplikacja, MERGE"]
@@ -44,15 +44,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    setup --> ingest_nbp & ingest_stooq & ingest_sec
-    ingest_nbp & ingest_stooq & ingest_sec --> silver --> quality_silver --> gold
+    setup --> ingest_nbp & ingest_fmp & ingest_sec
+    ingest_nbp & ingest_fmp & ingest_sec --> silver --> quality_silver --> gold
 ```
 
 | Zadanie | Notatnik | Co robi | Ponawianie |
 |---|---|---|---|
 | setup | `00_setup` | schematy, Volume, test połączenia ze źródłami | – |
 | ingest_nbp | `01_ingest_nbp` | kursy NBP → Bronze (przyrostowo) | 2× co 5 min |
-| ingest_stooq | `02_ingest_stooq` | notowania → Bronze (przyrostowo, nakładka 7 dni) | 2× co 5 min |
+| ingest_fmp | `02_ingest_fmp` | notowania → Bronze (przyrostowo, nakładka 7 dni) | 2× co 5 min |
 | ingest_sec | `03_ingest_sec` | EPS z SEC → Bronze (raz dziennie na spółkę) | 2× co 5 min |
 | silver | `04_silver` | Bronze → Silver (MERGE, kwarantanna) | – |
 | quality_silver | `05_quality_silver` | 15 testów; błąd krytyczny zatrzymuje job | – |
@@ -65,11 +65,11 @@ Harmonogram: dni robocze 7:30 (Europe/Warsaw) – po zamknięciu sesji w USA. W 
 
 | Warstwa | Mechanizm |
 |---|---|
-| Bronze (pobieranie) | znacznik przyrostu = ostatnia data w Bronze dla waluty / tickera; Stooq z nakładką 7 dni (korekty) |
+| Bronze (pobieranie) | znacznik przyrostu = ostatnia data w Bronze dla waluty / tickera; FMP z nakładką 7 dni (korekty) |
 | Silver | przetwarzane tylko rekordy Bronze z `_ingest_ts` > ostatnio przetworzonego; `MERGE` po kluczu biznesowym, aktualizacja tylko nowszą wersją |
 | Gold | pełna, deterministyczna przebudowa z Silver (mały wolumen – prostsze i zawsze spójne) |
 
-Tryb `full` (parametr joba / widżet `mode`) pobiera i przetwarza całą historię od `history_start`.
+Tryb `full` żąda danych od `history_start`; to, ile historii faktycznie zwróci FMP, zależy od uprawnień planu.
 
 ## Testy jakości danych
 

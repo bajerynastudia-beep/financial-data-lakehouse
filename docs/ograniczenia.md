@@ -3,14 +3,14 @@
 ## Ograniczenia
 
 **Dane i dziedzina**
-- P/E tylko dla spółek z USA – brak bezpłatnego, legalnego źródła historycznych wyników spółek z GPW.
+- Projekt obejmuje teraz wyłącznie pięć spółek USA (bez GPW oraz indeksów); efekt kursowy dla PLN jest nadal liczony.
 - P/E z rocznego EPS (raport 10-K): po zamknięciu roku wskaźnik może opierać się na zysku sprzed ponad roku;
   nie uwzględnia wyników kwartalnych (TTM) ani zdarzeń jednorazowych.
-- Spółki z USA wybrano spośród firm bez splitu od 2019 r.; dla spółek po splicie P/E sprzed splitu może być
+- Model P/E korzysta z rocznego EPS SEC; dla spółek po splicie historyczne P/E może być
   niespójne (sygnalizuje to test `eps_restatement_split_suspect`).
 - Lista spółek wybrana dzisiaj – wyniki historyczne są zawyżone przez **efekt przetrwania** (spółki, które
   zbankrutowały lub wypadły z indeksów, nie są analizowane).
-- Ceny ze Stooq mogą być korygowane o zdarzenia korporacyjne; nie weryfikujemy tego z drugim źródłem.
+- Ceny z FMP mogą podlegać korektom; nie weryfikujemy ich z drugim źródłem.
 - Portfel modelowy nie uwzględnia dywidend (o ile nie są w cenach skorygowanych), kosztów transakcyjnych, podatków
   ani rebalancingu; kurs NBP to kurs referencyjny, a nie kurs, po którym fundusz wymienia walutę.
 - Dzienna częstotliwość danych – brak danych śróddziennych.
@@ -18,7 +18,7 @@
 **Technika i środowisko**
 - Databricks Free Edition: tylko serverless, ograniczony dostęp do internetu (może wymagać weryfikacji konta),
   limity zużycia, brak gwarancji dostępności.
-- Stooq wymaga klucza API i ma dzienny limit pobrań; zmiana formatu odpowiedzi zatrzyma pobieranie (czytelny błąd).
+- FMP wymaga klucza API; limit zapytań, dostępne symbole i maksymalny zasięg historii zależą od planu. Pełna historia od 2023 r. NIE jest gwarantowana.
 - Gold jest przebudowywany w całości przy każdym uruchomieniu – wystarczające dla obecnego wolumenu.
 - Watermark Silver opiera się o `_ingest_ts`: jeśli cała nowa partia trafi do kwarantanny, przy kolejnym
   uruchomieniu zostanie przetworzona ponownie (duplikaty w kwarantannie, nie w Silver).
@@ -32,3 +32,5 @@
 - Benchmark portfela (WIG20 / S&P 500 w PLN) i miary względne (beta, tracking error).
 - Alerty: e-mail, gdy spółka spadnie do najniższych 10% historycznego P/E albo drawdown portfela przekroczy limit.
 - Kontrakty danych i *lineage* w Unity Catalog; osobne środowiska dev/prod w bundle.
+
+- Databricks nie został jeszcze przetestowany end-to-end po migracji. Bez poprawnego pełnego ładowania Gold i dashboard mogą pozostawać puste.

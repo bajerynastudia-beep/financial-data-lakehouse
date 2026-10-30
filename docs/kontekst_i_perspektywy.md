@@ -6,7 +6,7 @@
 ## Kontekst
 
 **Odbiorca:** zespół inwestycyjny (analitycy akcji i zarządzający) polskiego funduszu inwestycyjnego
-(fikcyjnego), który rozlicza się w PLN i inwestuje w spółki notowane na GPW oraz w USA.
+(fikcyjnego), który rozlicza się w PLN i analizuje spółki notowane w USA (pierwotny zakres obejmował też GPW).
 
 **Problem:** analitycy co tydzień ręcznie zbierają notowania, kursy walut i wyniki finansowe spółek
 z różnych serwisów do arkuszy. Dane są niespójne (różne kalendarze sesji, waluty, terminy publikacji
@@ -51,14 +51,14 @@ decyzje o zabezpieczeniu walutowym, kontrola ryzyka portfela modelowego (obsuni�
 |---|---|---|
 | Platforma Databricks (serverless, job ok. 10 min dziennie) | 0 zł | rząd wielkości kilkudziesięciu USD miesięcznie (zależnie od DBU i regionu) |
 | Dane NBP, SEC EDGAR | 0 zł | 0 zł (dane publiczne) |
-| Notowania | 0 zł (Stooq, użytek niekomercyjny) | licencja na dane do użytku komercyjnego (dostawca danych / GPW) – zwykle największy koszt |
+| Notowania | 0 zł przy zgodnym z planem użyciu FMP; limit i historia do weryfikacji | licencja na dane cenowe do użytku komercyjnego (FMP/inny dostawca) |
 | Utrzymanie | – | ok. 2–4 h pracy inżyniera danych miesięcznie (aktualizacje, obsługa błędów źródeł) |
 
 ## 2. Perspektywa dziedzinowa
 
 Pojęcia i reguły, które musiały znaleźć odzwierciedlenie w danych:
 
-- **Kalendarze sesji:** GPW i giełdy w USA mają różne dni wolne. Budujemy wspólny kalendarz dni sesyjnych;
+- **Kalendarze sesji:** Spółki w USA mają wspólny kalendarz sesji, ale dni publikacji NBP mogą się różnić od amerykańskich. Budujemy wspólny kalendarz dni sesyjnych;
   w dniu bez sesji na danym rynku przenosimy ostatnią cenę (`is_filled = true`).
 - **Kurs średni NBP (tabela A):** publikowany w polskie dni robocze. Do przeliczenia na PLN używamy kursu
   z dnia notowania; gdy NBP nie publikuje (polskie święto), ostatniego opublikowanego (`fx_is_filled`).
@@ -70,12 +70,12 @@ Pojęcia i reguły, które musiały znaleźć odzwierciedlenie w danych:
     znał jeszcze przyszłych wyników (brak *look-ahead bias*).
   - Rok obrotowy nie musi być kalendarzowy (Microsoft i P&G kończą rok w czerwcu).
   - Przy ujemnym zysku P/E nie ma sensu (NULL); pokazujemy wtedy stopę zysku (earnings yield).
-  - Split akcji zmienia EPS historyczny – stąd reguła jakości „podejrzenie splitu” i dobór spółek bez splitów od 2019 r.
-- **Spółki z GPW:** nie ma bezpłatnego, legalnego źródła historycznych wyników – P/E liczymy tylko dla USA (ograniczenie).
+  - Split akcji zmienia EPS historyczny – stąd reguła jakości „podejrzenie splitu” i ostrożność przy splitach i zakresie historii od 2023 r.
+- **Spółki z GPW:** poza aktualnym zakresem po przejściu na FMP; obliczenia P/E dotyczą spółek USA.
 - **Miary ryzyka:** zmienność roczna = odchylenie standardowe dziennych stóp zwrotu × √252;
   obsunięcie kapitału (drawdown) = spadek od najwyższej dotychczasowej wartości; CAGR = średnioroczna stopa zwrotu;
   zwrot/ryzyko = (CAGR − stopa wolna od ryzyka) / zmienność.
-- **Portfel modelowy:** kup i trzymaj, równe wagi 10%, bez kosztów transakcyjnych, dywidend i podatków.
+- **Portfel modelowy:** kup i trzymaj, równe wagi 20%, bez kosztów transakcyjnych, dywidend i podatków.
 
 ## 3. Perspektywa techniczna
 
@@ -108,7 +108,7 @@ Diagram: [architektura.md](architektura.md).
 
 | Kwestia | Odpowiedź |
 |---|---|
-| Czy dane można legalnie pozyskać? | **NBP:** dane publiczne, bezpłatne API przeznaczone do automatycznego pobierania. **SEC EDGAR:** dane publiczne rządu USA; przestrzegamy zasad dostępu (User-Agent z kontaktem, ≤ 10 zapytań/s). **Stooq:** pobieranie przez udostępnione API z kluczem, użytek edukacyjny i niekomercyjny; **regulamin Stooq do weryfikacji przez zespół [do uzupełnienia]** – surowych plików nie publikujemy w repozytorium. |
+| Czy dane można legalnie pozyskać? | **NBP:** dane publiczne, bezpłatne API przeznaczone do automatycznego pobierania. **SEC EDGAR:** dane publiczne rządu USA; przestrzegamy zasad dostępu (User-Agent z kontaktem, ≤ 10 zapytań/s). **FMP:** pobieranie przez udokumentowany endpoint z kluczem, a zakres bezpłatnego planu i licencję na ponowne udostępnianie danych należy potwierdzić; surowych cen nie publikujemy w repozytorium. |
 | Dane osobowe? | Nie. Dane dotyczą spółek, kursów i notowań. Jedyna dana kontaktowa (e-mail w User-Agent dla SEC) jest sekretem i nie trafia do repozytorium ani do tabel. |
 | Właściciel danych i odpowiedzialność za jakość | Źródłowe: NBP, SEC (sprawozdania – spółki), Stooq. Za przetworzenie i testy jakości odpowiada zespół projektu (właściciel potoku). |
 | Ryzyka błędnej interpretacji | wyniki historyczne nie gwarantują przyszłych; P/E z rocznego EPS (nie TTM) może być nieaktualne do 12+ mies.; jednorazowe zdarzenia zaburzają EPS; brak P/E dla GPW; ceny Stooq mogą być korygowane o zdarzenia korporacyjne; **efekt przetrwania** – lista spółek wybrana dziś, a nie w 2019 r.; kurs NBP ≠ kurs transakcyjny. |

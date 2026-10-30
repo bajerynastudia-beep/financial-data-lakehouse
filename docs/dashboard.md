@@ -24,7 +24,7 @@ dwa pytania z karty projektu. Proponowany układ – **do decyzji i wykonania pr
 | Ryzyko | obszar: drawdown portfela; linia: zmienność krocząca | P4 | P4 |
 | Jakość danych | tabela wyników testów + licznik „ostatnia aktualizacja” | DQ, aktualność | – |
 
-Filtry: zakres dat, rynek (GPW/USA), spółka. Na każdej stronie zastrzeżenie:
+Filtry: zakres dat, spółka, sektor (obecny zakres: USA). Na każdej stronie zastrzeżenie:
 *„Analiza danych historycznych na potrzeby projektu – nie stanowi rekomendacji inwestycyjnej.”*
 
 Odświeżanie: dashboard czyta tabele Gold, więc pokazuje wynik ostatniego poprawnego uruchomienia potoku.

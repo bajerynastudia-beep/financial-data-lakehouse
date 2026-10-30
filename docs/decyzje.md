@@ -10,7 +10,7 @@ do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisu
 | D-01 | 2026-10-08 | Platforma: Databricks Free Edition + Delta Lake | ✅ zespół |
 | D-02 | 2026-10-22 | Odbiorca: zespół inwestycyjny funduszu; źródła: GPW + USA, P/E z SEC | ✅ zespół |
 | D-03 | 2026-10-22 | Architektura medalionowa + schemat `fin_ops` | ✅ zespół (wariant prostszy) |
-| D-04 | 2026-10-22 | Notowania ze Stooq (API z kluczem) | ✅ zespół (wariant prostszy) |
+| D-04 | 2026-10-22 | Notowania ze Stooq (API z kluczem) | Zastąpiona przez D-13 (30.10) |
 | D-05 | 2026-10-22 | P/E z rocznego EPS z SEC EDGAR, bez look-ahead; spółki bez splitów | ✅ zespół (wariant prostszy) |
 | D-06 | 2026-10-22 | Kurs średni NBP z dnia notowania, uzupełnianie ostatnim kursem | ✅ zespół (wariant prostszy) |
 | D-07 | 2026-10-22 | Portfel modelowy: kup i trzymaj, równe wagi | ✅ zespół (wariant prostszy) |
@@ -19,6 +19,7 @@ do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisu
 | D-10 | 2026-10-22 | Własny moduł testów jakości w PySpark | ✅ zespół (wariant prostszy) |
 | D-11 | 2026-10-22 | Logika w pakiecie `src/`, cienkie notatniki, CI w GitHub Actions | ✅ zespół (wariant prostszy) |
 | D-12 | 2026-10-22 | Aplikacja: dashboard AI/BI w Databricks | ✅ zespół (wariant prostszy) |
+| D-13 | 2026-10-30 | Zmiana Stooq → FMP i zakresu GPW+USA → 5 spółek USA | ✅ decyzja w toku realizacji; wymaga testu w Databricks |
 
 ---
 
@@ -88,3 +89,12 @@ do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisu
 - **Uzasadnienie:** dashboard czyta tabele Gold bezpośrednio, nie wymaga pisania ani hostowania aplikacji,
   ma filtry i odświeżanie; eksportujemy go do repozytorium jako `.lvdash.json`, więc oceniający może go zaimportować.
   Streamlit – kierunek rozwoju (analiza scenariuszy).
+
+
+### D-13. Zmiana dostawcy na FMP (30.10.2026)
+- **Powód:** Stooq zwrócił HTML i przy próbie pobrania CSV w przeglądarce komunikat „Odmowa dostępu”. Nie uzyskano klucza.
+- **Alternatywa:** Financial Modeling Prep (FMP), którego endpoint `stable/historical-price-eod/full` wcześniej zwrócił 12 notowań AAPL.
+- **Zakres:** AAPL, MSFT, KO, JPM, XOM; wszystkie spółki USD, z CIK w SEC. Portfel 5 × 20%, od 2023-01-02.
+- **Skutek:** usunięto instrumenty GPW i indeksy (niezakładana dostępność w planie FMP). Warstwy Silver/Gold i 4 pytania biznesowe zachowano.
+- **Ryzyka:** data historyczna dostępna w FMP może sięgać krócej niż 2023; licencja na publikację cen wymaga weryfikacji; dane o splitach i dywidendach mogą wpływać na P/E i zwroty.
+- **Walidacja:** testy jednostkowe w GitHub Actions oraz **konieczny** test źródeł + full load + Gold w docelowym Databricks.
