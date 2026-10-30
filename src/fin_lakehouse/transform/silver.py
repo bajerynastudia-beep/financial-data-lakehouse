@@ -84,7 +84,7 @@ def clean_fx(bronze: DataFrame) -> tuple[DataFrame, DataFrame]:
 
 
 # --------------------------------------------------------------------------------------
-# Notowania (Stooq)
+# Notowania (FMP)
 # --------------------------------------------------------------------------------------
 def clean_prices(bronze: DataFrame) -> tuple[DataFrame, DataFrame]:
     df = bronze.select(

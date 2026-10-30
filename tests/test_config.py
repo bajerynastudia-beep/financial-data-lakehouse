@@ -36,18 +36,18 @@ def test_portfolio_ticker_must_exist(repo_root):
 
 def test_currency_needs_nbp_rate(repo_root):
     cfg = load_config(repo_root)
-    bad = _broken(cfg, lambda d: d["settings"]["sources"]["nbp"].update(currencies=["USD"]))
-    with pytest.raises(ConfigError, match="EUR"):
+    bad = _broken(cfg, lambda d: d["settings"]["sources"]["nbp"].update(currencies=[]))
+    with pytest.raises(ConfigError, match="USD"):
         validate_config(bad)
 
 
 def test_secret_from_env_and_clear_error(repo_root, monkeypatch):
     cfg = load_config(repo_root)
-    monkeypatch.setenv("STOOQ_API_KEY", "abc")
-    assert get_secret(cfg, "stooq_api_key") == "abc"
-    monkeypatch.delenv("STOOQ_API_KEY")
+    monkeypatch.setenv("FMP_API_KEY", "abc")
+    assert get_secret(cfg, "fmp_api_key") == "abc"
+    monkeypatch.delenv("FMP_API_KEY")
     with pytest.raises(ConfigError, match="fin-lakehouse"):
-        get_secret(cfg, "stooq_api_key")
+        get_secret(cfg, "fmp_api_key")
 
 
 def test_secret_prefers_databricks_scope(repo_root):

@@ -1,1 +1,1 @@
-"""Moduły pozyskania danych z zewnętrznych źródeł (NBP, Stooq, SEC EDGAR)."""
+"""Moduły pozyskania danych z zewnętrznych źródeł (NBP, FMP, SEC EDGAR)."""

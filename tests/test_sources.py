@@ -4,7 +4,7 @@ from datetime import date
 import pytest
 
 from conftest import FakeHttp, FakeResponse
-from fin_lakehouse.sources import nbp, sec, stooq
+from fin_lakehouse.sources import nbp, sec, fmp
 
 
 # ---------------- NBP ----------------
@@ -36,39 +36,33 @@ def test_nbp_404_means_no_data():
     assert http.calls[0]["url"].endswith("/usd/2024-01-06/2024-01-07/")
 
 
-# ---------------- Stooq ----------------
-def test_stooq_parse_english_csv(fixtures):
-    rows = stooq.parse_csv((fixtures / "stooq_pko.csv").read_text(), "pko")
-    assert len(rows) == 3
-    assert rows[0]["ticker"] == "pko" and rows[0]["close"] == "45.8"
-    assert rows[2]["volume"] is None  # pusty wolumen -> NULL, nie pusty tekst
+# ---------------- FMP ----------------
+def test_fmp_json_to_bronze():
+    raw = json.dumps([{"symbol":"AAPL", "date":"2024-01-02",
+                       "open":180, "high":185, "low":178, "close":182.5, "volume":1000}])
+    rows = fmp.parse_history(raw, "aapl")
+    assert len(rows) == 1
+    assert rows[0]["ticker"] == "aapl" and rows[0]["close"] == "182.5"
+    http = FakeHttp([FakeResponse(200, raw)])
+    fmp.fetch_daily(http, "https://financialmodelingprep.com/stable/historical-price-eod/full",
+                    "aapl", date(2024, 1, 1), date(2024, 1, 31), "SECRET")
+    assert http.calls[0]["params"] == {
+        "symbol": "AAPL", "from": "2024-01-01", "to": "2024-01-31", "apikey": "SECRET"
+    }
 
 
-def test_stooq_parse_polish_headers(fixtures):
-    rows = stooq.parse_csv((fixtures / "stooq_wig20_pl.csv").read_text(), "wig20")
-    assert rows == [{"ticker": "wig20", "date": "2024-01-02", "open": "2350.1", "high": "2370.5",
-                     "low": "2340.0", "close": "2365.2", "volume": None}]
+@pytest.mark.parametrize("response", [
+    "[]", "<html>blocked</html>", '{"Error Message":"Upgrade plan"}',
+    '[{"symbol":"MSFT","date":"2024-01-02","close":1}]',
+])
+def test_fmp_bad_or_empty_response(response):
+    with pytest.raises(fmp.FmpError):
+        fmp.parse_history(response, "aapl")
 
 
-def test_stooq_html_instead_of_csv_is_clear_error(fixtures):
-    with pytest.raises(stooq.StooqError, match="klucz API"):
-        stooq.parse_csv((fixtures / "stooq_apikey_page.html").read_text(), "pko")
-
-
-@pytest.mark.parametrize("text", ["No data", "Brak danych", ""])
-def test_stooq_no_data_is_empty(text):
-    assert stooq.parse_csv(text, "pko") == []
-
-
-def test_stooq_daily_limit_is_error():
-    with pytest.raises(stooq.StooqError, match="limit"):
-        stooq.parse_csv("Przekroczony dzienny limit wywolan", "pko")
-
-
-def test_stooq_request_params():
-    http = FakeHttp([FakeResponse(200, "Date,Close\n2024-01-02,1")])
-    stooq.fetch_daily(http, "https://stooq.com/q/d/l/", "msft.us", date(2024, 1, 1), date(2024, 1, 31), "KEY")
-    assert http.calls[0]["params"] == {"s": "msft.us", "i": "d", "d1": "20240101", "d2": "20240131", "apikey": "KEY"}
+def test_fmp_rejects_zero_price():
+    with pytest.raises(fmp.FmpError):
+        fmp.parse_history('[{"symbol":"AAPL","date":"2024-01-02","close":0}]', "aapl")
 
 
 # ---------------- SEC ----------------

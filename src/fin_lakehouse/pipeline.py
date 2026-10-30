@@ -21,11 +21,11 @@ from fin_lakehouse import lakehouse_io as io
 from fin_lakehouse.config import Config, get_secret
 from fin_lakehouse.http_client import SourceError, get_with_retry
 from fin_lakehouse.quality import checks as dq
-from fin_lakehouse.sources import nbp, sec, stooq
+from fin_lakehouse.sources import nbp, sec, fmp
 from fin_lakehouse.transform import gold, silver
 
 # Nazwy tabel (bez katalogu i schematu)
-BRONZE = {"fx": "nbp_fx_rates", "prices": "stooq_prices", "eps": "sec_eps_facts"}
+BRONZE = {"fx": "nbp_fx_rates", "prices": "fmp_prices", "eps": "sec_eps_facts"}
 SILVER = {"fx": "fx_rates", "prices": "prices", "eps": "eps_facts", "quarantine": "quarantine"}
 OPS = {"runs": "pipeline_runs", "dq": "dq_results"}
 
@@ -86,10 +86,10 @@ def check_sources(cfg: Config, dbutils: Any = None, http_get: Callable[..., Any]
         raw = nbp.fetch_chunk(http_get, src["nbp"]["base_url"], "USD", today - timedelta(days=10), today)
         return f"{len(nbp.parse_rates(raw)) if raw else 0} kursów USD z ostatnich 10 dni"
 
-    def _stooq() -> str:
-        key = get_secret(cfg, "stooq_api_key", dbutils)
-        txt = stooq.fetch_daily(http_get, src["stooq"]["base_url"], cfg.tickers[0], today - timedelta(days=10), today, key)
-        return f"{len(stooq.parse_csv(txt, cfg.tickers[0]))} notowań {cfg.tickers[0]} z ostatnich 10 dni"
+    def _fmp() -> str:
+        key = get_secret(cfg, "fmp_api_key", dbutils)
+        raw = fmp.fetch_daily(http_get, src["fmp"]["base_url"], cfg.tickers[0], today - timedelta(days=15), today, key)
+        return f"{len(fmp.parse_history(raw, cfg.tickers[0]))} notowań {cfg.tickers[0]} z 15 dni"
 
     def _sec() -> str:
         ua = get_secret(cfg, "sec_user_agent", dbutils)
@@ -98,7 +98,7 @@ def check_sources(cfg: Config, dbutils: Any = None, http_get: Callable[..., Any]
         return f"{len(sec.extract_facts(facts, src['sec']['concept'], src['sec']['unit']))} faktów EPS dla {comp['name']}"
 
     probe("NBP (kursy walut)", _nbp)
-    probe("Stooq (notowania)", _stooq)
+    probe("FMP (notowania)", _fmp)
     probe("SEC EDGAR (EPS)", _sec)
     return out
 
@@ -139,33 +139,37 @@ def ingest_nbp(spark: SparkSession, cfg: Config, run_id: str, mode: str = "incre
     return res
 
 
-def ingest_stooq(spark: SparkSession, cfg: Config, run_id: str, mode: str = "incremental", dbutils: Any = None,
-                 end: date | None = None, http_get: Callable[..., Any] | None = None) -> StepResult:
-    s, src = cfg.settings, cfg.settings["sources"]["stooq"]
+def ingest_fmp(spark: SparkSession, cfg: Config, run_id: str, mode: str = "incremental", dbutils: Any = None,
+               end: date | None = None, http_get: Callable[..., Any] | None = None) -> StepResult:
+    """FMP JSON -> Volume raw + tabela fmp_prices w Bronze (schemat identyczny jak prices w Silver)."""
+    s, src = cfg.settings, cfg.settings["sources"]["fmp"]
     table = cfg.table("bronze", BRONZE["prices"])
     http_get = http_get or http_getter(cfg)
-    api_key = get_secret(cfg, "stooq_api_key", dbutils)
+    api_key = get_secret(cfg, "fmp_api_key", dbutils)
     today = date.today()
     end = end or today
     wm = io.max_by_group(spark, table, "ticker", "date") if mode == "incremental" else {}
-    res = StepResult("ingest_stooq")
+    res = StepResult("ingest_fmp")
     rows: list[dict] = []
     for ticker in cfg.tickers:
         last = _as_date(wm.get(ticker))
         start = last - timedelta(days=src["overlap_days"]) if last else date.fromisoformat(s["history_start"])
+        if start > end:
+            continue
         try:
-            text = stooq.fetch_daily(http_get, src["base_url"], ticker, start, end, api_key)
-            parsed = stooq.parse_csv(text, ticker)
-        except SourceError as exc:
+            raw = fmp.fetch_daily(http_get, src["base_url"], ticker, start, end, api_key)
+            parsed = fmp.parse_history(raw, ticker)
+        except (SourceError, ValueError) as exc:
             res.errors.append(f"{ticker}: {exc}")
             continue
-        path = io.save_raw(cfg.raw_volume_path, "stooq", f"{_safe(ticker)}_{start}_{end}_{_safe(run_id)}.csv", text, today.isoformat())
+        path = io.save_raw(cfg.raw_volume_path, "fmp",
+                           f"{_safe(ticker)}_{start}_{end}_{_safe(run_id)}.json", raw, today.isoformat())
         res.files += 1
-        for r in parsed:
-            r["_source_file"] = path
+        for row in parsed:
+            row["_source_file"] = path
         rows += parsed
     if rows:
-        io.append(io.rows_to_bronze(spark, rows, stooq.BRONZE_COLUMNS, run_id), table)
+        io.append(io.rows_to_bronze(spark, rows, fmp.BRONZE_COLUMNS, run_id), table)
     res.rows = len(rows)
     return res
 

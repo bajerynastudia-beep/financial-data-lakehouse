@@ -8,7 +8,7 @@ resources:
   jobs:
     fin_lakehouse_pipeline:
       name: fin-lakehouse-pipeline
-      description: "NBP + Stooq + SEC EDGAR -> Bronze -> Silver -> testy jakości -> Gold"
+      description: "NBP + FMP + SEC EDGAR -> Bronze -> Silver -> testy jakości -> Gold"
       # Codziennie w dni robocze o 7:30 (po zamknięciu sesji w USA). Wstrzymane, dopóki nie włączycie w UI.
       schedule:
         quartz_cron_expression: "0 30 7 ? * MON-FRI"
@@ -32,12 +32,12 @@ resources:
           notebook_task:
             notebook_path: ./notebooks/01_ingest_nbp.py
 
-        - task_key: ingest_stooq
+        - task_key: ingest_fmp
           depends_on: [{task_key: setup}]
           max_retries: 2
           min_retry_interval_millis: 300000
           notebook_task:
-            notebook_path: ./notebooks/02_ingest_stooq.py
+            notebook_path: ./notebooks/02_ingest_fmp.py
 
         - task_key: ingest_sec
           depends_on: [{task_key: setup}]
@@ -47,7 +47,7 @@ resources:
             notebook_path: ./notebooks/03_ingest_sec.py
 
         - task_key: silver
-          depends_on: [{task_key: ingest_nbp}, {task_key: ingest_stooq}, {task_key: ingest_sec}]
+          depends_on: [{task_key: ingest_nbp}, {task_key: ingest_fmp}, {task_key: ingest_sec}]
           notebook_task:
             notebook_path: ./notebooks/04_silver.py
 

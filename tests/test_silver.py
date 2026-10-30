@@ -9,7 +9,7 @@ pytest.importorskip("pyspark")
 
 from pyspark.sql import types as T  # noqa: E402
 
-from fin_lakehouse.sources import nbp, sec, stooq  # noqa: E402
+from fin_lakehouse.sources import nbp, sec, fmp  # noqa: E402
 from fin_lakehouse.transform import silver  # noqa: E402
 
 
@@ -43,7 +43,7 @@ def test_clean_fx_types_dedupe_and_quarantine(spark):
 
 
 def test_clean_prices_rejects_non_positive_close(spark):
-    df = bronze(spark, stooq.BRONZE_COLUMNS, [
+    df = bronze(spark, fmp.BRONZE_COLUMNS, [
         ({"ticker": "PKO ", "date": "2024-01-02", "open": "1", "high": "2", "low": "1", "close": "1.5", "volume": "100"}, T1),
         ({"ticker": "pko", "date": "2024-01-03", "close": "0"}, T1),
         ({"ticker": None, "date": "2024-01-03", "close": "5"}, T1),
@@ -67,7 +67,7 @@ def test_clean_eps_marks_annual_reports(spark, fixtures):
 
 
 def test_quarantine_keeps_original_record(spark):
-    df = bronze(spark, stooq.BRONZE_COLUMNS, [({"ticker": "pko", "date": "02.01.2024", "close": "1"}, T1)])
+    df = bronze(spark, fmp.BRONZE_COLUMNS, [({"ticker": "pko", "date": "02.01.2024", "close": "1"}, T1)])
     _, rejected = silver.clean_prices(df)
     q = silver.to_quarantine(rejected, "bronze.stooq_prices").collect()[0]
     assert q["reject_reason"] == "invalid_date"
