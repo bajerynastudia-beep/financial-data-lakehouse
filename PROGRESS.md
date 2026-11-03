@@ -38,3 +38,15 @@
   test `00_setup`, pełne ładowanie, testy Silver/Gold, uruchomienie i eksport dashboardu AI/BI.
 - Historia od 2023 r. zależy od uprawnień bezpłatnego planu FMP; brak potwierdzenia pokrycia z API.
 - Zmiana kodu wykonana przy wsparciu ChatGPT; do zweryfikowania przez autorkę projektu w Databricks.
+
+## 30.10–03.11.2026 – rzeczywiste uruchomienie i dashboard AI/BI
+- W Databricks utworzono secret scope `fin-lakehouse`; sprawdzono połączenie NBP, FMP i SEC: wszystkie 3 statusy OK.
+- Pełne pobranie do Bronze: FMP – 5 × 961 = 4805 notowań (03.01.2023–30.10.2026);
+  NBP – USD i EUR po 966 rekordów (łącznie 1932); SEC – dane EPS spółek USA.
+- Uruchomiono Silver i 15 automatycznych kontroli jakości (14 PASS, 1 WARN, bez błędów krytycznych);
+  Gold oraz analizy P1–P4 zwróciły wyniki finansowe.
+- W Databricks utworzono 5 wykresów, 4 KPI oraz filtry spółki i dat; użytkowniczka potwierdziła działanie filtra dat dla 2025.
+- Otrzymano i dodano eksport `dashboards/financial-data-lakehouse.lvdash.json` do Git.
+- **Pozostałe prace:** weryfikacja publikacji i ponownego importu dashboardu, dodanie zastrzeżenia
+  o charakterze edukacyjnym, potwierdzenie szczegółów testów Gold, harmonogram joba,
+  tagi tygodniowe, odtworzenie na czystym środowisku i prezentacja.
