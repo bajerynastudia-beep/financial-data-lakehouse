@@ -1,3 +1,28 @@
+# Dashboard Databricks AI/BI – status i odtworzenie
+
+**Status (03.11.2026):** dashboard utworzony i przetestowany interaktywnie w Databricks Free Edition.
+Eksport dostarczony przez autorkę jest zapisany jako
+[`dashboards/financial-data-lakehouse.lvdash.json`](../dashboards/financial-data-lakehouse.lvdash.json).
+
+**Faktyczny eksport zawiera:** jedną stronę, 5 wykresów (CAGR w PLN, bieżący P/E vs mediana,
+CAGR USD vs PLN, miesięczne minimum drawdown, wartość portfela przy rzeczywistym i stałym kursie),
+4 liczniki KPI, filtr spółki i filtr zakresu dat, 7 datasetów SQL (jeden zbędny, nieużywany).
+Filtr spółki jest powiązany z trzema datasetami spółek, a filtr dat z dwoma datasetami czasowymi.
+Kafelki KPI dotyczą pełnego portfela i nie powinny być filtrowane po spółce lub dacie.
+
+**Należy jeszcze sprawdzić przed oddaniem:** czy istnieje opublikowana wersja dashboardu
+(sam eksport nie stanowi dowodu publikacji), czy można go importować na innym koncie,
+oraz czy u dołu dodano zastrzeżenie o charakterze edukacyjnym. W dostarczonym eksporcie
+nie ma jeszcze tekstu `Nie stanowi rekomendacji inwestycyjnej`. Warto też usunąć niewykorzystany
+dataset `Monthly Portfolio Value and Currency Impact Summary` i wyeksportować ponownie.
+
+**Import:** w Databricks otwórz Dashboards → Create / Import from file (w zależności od wersji UI),
+wskaż plik `.lvdash.json`, a po imporcie zweryfikuj uprawnienia do tabel
+`workspace.fin_gold.*` i dostęp do SQL Warehouse. Export nie przenosi danych ani sekretów FMP/SEC.
+Użytkownik importujący musi mieć dostęp do tych tabel oraz prawidłowo zbudowaną warstwę Gold.
+
+---
+
 # Dashboard (tydzień 3) – jak zbudować w Databricks AI/BI
 
 Wymaganie projektu: interaktywny interfejs korzystający z danych z potoku, odpowiadający na co najmniej
