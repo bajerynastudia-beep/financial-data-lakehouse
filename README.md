@@ -52,7 +52,7 @@ src/fin_lakehouse/       logika potoku (pakiet Pythona)
 notebooks/               notatniki Databricks (format źródłowy .py)
   00_setup … 06_gold     kolejne kroki potoku
   07_analysis            odpowiedzi na pytania biznesowe
-sql/dashboard_queries.sql  zapytania dla dashboardu
+sql/dashboard_queries.sql  przykładowe zapytania dla dashboardu
 tests/                   testy jednostkowe (pytest) + syntetyczne próbki odpowiedzi źródeł
 databricks.yml           job potoku jako kod (Databricks Asset Bundle)
 .github/workflows/       automatyczne testy przy każdym pushu
@@ -142,7 +142,7 @@ Zgodnie z zasadami projektu opisujemy zakres użycia narzędzi AI:
   joba, workflow CI oraz szkice dokumentacji w `docs/`. Commity przygotowane przez AI mają w opisie
   `Co-Authored-By: Claude`.
 - **Zespół:** wybór tematu, odbiorcy i źródeł, uruchomienie i weryfikacja potoku w Databricks, przegląd kodu,
-  potwierdzenie decyzji w `docs/decyzje.md`, dashboard **[nadal do zbudowania i przetestowania w Databricks]**.
+  potwierdzenie decyzji w `docs/decyzje.md`, dashboard **wyeksportowany do `dashboards/financial-data-lakehouse.lvdash.json` (03.11.2026)**; publikację i ponowny import należy jeszcze zweryfikować.
 
 Autorzy odpowiadają za całe rozwiązanie; wyniki i kod wygenerowane przez AI weryfikujemy uruchomieniem,
 testami i przeglądem.
