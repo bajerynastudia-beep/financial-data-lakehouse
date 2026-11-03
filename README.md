@@ -106,15 +106,19 @@ pokazuje status każdego źródła (NBP, FMP, SEC). Wszystkie muszą mieć statu
 `05_quality_silver`, `06_gold` z widżetem `mode = full` (pierwsze ładowanie pobiera historię od 2023 r.).
 
 **Opcja B – job jako kod (Databricks CLI):**
+Pełna instrukcja wdrożenia, testowego uruchomienia, aktywowania harmonogramu i diagnostyki:
+[docs/automatyzacja.md](docs/automatyzacja.md).
+Uruchamiaj poniższe polecenia **w lokalnym katalogu sklonowanego repozytorium** (tam, gdzie jest `databricks.yml`):
 ```bash
-databricks bundle deploy
-databricks bundle run fin_lakehouse_pipeline --params mode=full
+databricks bundle validate -p dbc-8b06d9f3-fe92
+databricks bundle deploy -p dbc-8b06d9f3-fe92
+databricks bundle run -p dbc-8b06d9f3-fe92 --params mode=incremental fin_lakehouse_pipeline
 ```
 **Opcja C – job w interfejsie:** Jobs & Pipelines → Create job → zadania jak w `databricks.yml`
 (setup → 3× ingest → silver → quality_silver → gold), parametry joba `mode=incremental`, `run_id={{job.run_id}}`.
 
 Kolejne uruchomienia: `mode = incremental` (domyślnie) – pobierane są tylko nowe dane.
-Harmonogram joba (dni robocze 7:30) jest w bundle wstrzymany – włącz go w ustawieniach joba.
+Harmonogram joba (dni robocze 7:30) jest początkowo wstrzymany. Po udanym teście zmień `pause_status` na `UNPAUSED` w `databricks.yml` i ponownie wdroż bundle (źródło prawdy w Git).
 
 ### 5. Wyniki i aplikacja
 - `notebooks/07_analysis` – odpowiedzi na pytania P1–P4,
