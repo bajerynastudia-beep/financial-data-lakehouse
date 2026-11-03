@@ -50,3 +50,9 @@
 - **Pozostałe prace:** weryfikacja publikacji i ponownego importu dashboardu, dodanie zastrzeżenia
   o charakterze edukacyjnym, potwierdzenie szczegółów testów Gold, harmonogram joba,
   tagi tygodniowe, odtworzenie na czystym środowisku i prezentacja.
+
+## 03.11.2026 – przygotowanie automatyzacji Databricks
+- Potwierdzono definicję 7-zadaniowego joba w `databricks.yml`: pobieranie NBP/FMP/SEC, Silver, bramka DQ i Gold.
+- Dodano [docs/automatyzacja.md](docs/automatyzacja.md) z krokami wdrożenia przez Databricks CLI na Windows.
+- Harmonogram 07:30 w dni robocze jest celowo `PAUSED`, aż do udanego testowego uruchomienia.
+- **Do potwierdzenia w środowisku:** `bundle validate`, `bundle deploy`, pierwsze `bundle run`, ewentualna aktywacja harmonogramu.
