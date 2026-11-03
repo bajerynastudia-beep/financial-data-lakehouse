@@ -1,0 +1,938 @@
+{
+  "datasets": [
+    {
+      "name": "0a368fb0",
+      "displayName": "P1_Rentownosc_i_ryzyko",
+      "queryLines": [
+        "SELECT\r\n",
+        "    name AS spolka,\r\n",
+        "    ROUND(cagr_pln * 100, 2) AS cagr_proc,\r\n",
+        "    ROUND(volatility_pln * 100, 2) AS zmiennosc_proc,\r\n",
+        "    ROUND(max_drawdown_pln * 100, 2) AS obsuniecie_proc,\r\n",
+        "    ROUND(return_to_risk_pln, 2) AS zwrot_do_ryzyka\r\n",
+        "FROM workspace.fin_gold.risk_return\r\n",
+        "WHERE instrument_type = 'stock'\r\n",
+        "ORDER BY cagr_pln DESC;"
+      ]
+    },
+    {
+      "name": "1656bca2",
+      "displayName": "P2_Wycena_PE",
+      "queryLines": [
+        "SELECT\r\n",
+        "    name AS spolka,\r\n",
+        "    ROUND(pe_current, 1) AS pe_biezace,\r\n",
+        "    ROUND(pe_median_hist, 1) AS pe_mediana_historyczna,\r\n",
+        "    ROUND(pe_percentile_hist * 100, 0) AS percentyl_pe\r\n",
+        "FROM workspace.fin_gold.valuation_snapshot\r\n",
+        "WHERE pe_current IS NOT NULL\r\n",
+        "ORDER BY percentyl_pe DESC;\r\n"
+      ]
+    },
+    {
+      "name": "f8bcc687",
+      "displayName": "P3_Wplyw_USD_PLN",
+      "queryLines": [
+        "SELECT\r\n",
+        "    name AS spolka,\r\n",
+        "    ROUND(cagr_local * 100, 2) AS cagr_usd,\r\n",
+        "    ROUND(cagr_pln * 100, 2) AS cagr_pln,\r\n",
+        "    ROUND(fx_effect_cagr * 100, 2) AS efekt_walutowy_pp\r\n",
+        "FROM workspace.fin_gold.risk_return\r\n",
+        "WHERE instrument_type = 'stock'\r\n",
+        "ORDER BY cagr_pln DESC;\r\n"
+      ]
+    },
+    {
+      "name": "a08bb18e",
+      "displayName": "P4_Ryzyko_portfela",
+      "queryLines": [
+        "SELECT\r\n",
+        "    date AS data,\r\n",
+        "    ROUND(drawdown * 100, 2) AS obsuniecie_proc,\r\n",
+        "    ROUND(rolling_volatility * 100, 2) AS zmiennosc_proc,\r\n",
+        "    ROUND(value_pln, 2) AS wartosc_portfela\r\n",
+        "FROM workspace.fin_gold.portfolio_daily\r\n",
+        "ORDER BY date;\r\n"
+      ]
+    },
+    {
+      "name": "20ee2598",
+      "displayName": "Monthly Portfolio Value and Currency Impact Summary",
+      "queryLines": [
+        "\r\n",
+        "WITH miesieczne AS (\r\n",
+        "    SELECT\r\n",
+        "        date,\r\n",
+        "        value_pln,\r\n",
+        "        value_pln_fixed_fx,\r\n",
+        "        fx_effect_pln,\r\n",
+        "        ROW_NUMBER() OVER (\r\n",
+        "            PARTITION BY DATE_TRUNC('MONTH', date)\r\n",
+        "            ORDER BY date DESC\r\n",
+        "        ) AS rn\r\n",
+        "    FROM workspace.fin_gold.portfolio_daily\r\n",
+        ")\r\n",
+        "SELECT\r\n",
+        "    date AS data,\r\n",
+        "    ROUND(value_pln, 2) AS rzeczywista_wartosc_pln,\r\n",
+        "    ROUND(value_pln_fixed_fx, 2) AS staly_kurs_pln,\r\n",
+        "    ROUND(fx_effect_pln, 2) AS efekt_walutowy_pln\r\n",
+        "FROM miesieczne\r\n",
+        "WHERE rn = 1\r\n",
+        "ORDER BY data;\r\n"
+      ]
+    },
+    {
+      "name": "6b7da59d",
+      "displayName": "P3_Wartosc_portfela_waluty",
+      "queryLines": [
+        "WITH miesieczne AS (\r\n",
+        "    SELECT\r\n",
+        "        date,\r\n",
+        "        value_pln,\r\n",
+        "        value_pln_fixed_fx,\r\n",
+        "        fx_effect_pln,\r\n",
+        "        ROW_NUMBER() OVER (\r\n",
+        "            PARTITION BY DATE_TRUNC('MONTH', date)\r\n",
+        "            ORDER BY date DESC\r\n",
+        "        ) AS rn\r\n",
+        "    FROM workspace.fin_gold.portfolio_daily\r\n",
+        ")\r\n",
+        "SELECT\r\n",
+        "    date AS data,\r\n",
+        "    ROUND(value_pln, 2) AS rzeczywista_wartosc_pln,\r\n",
+        "    ROUND(value_pln_fixed_fx, 2) AS staly_kurs_pln,\r\n",
+        "    ROUND(fx_effect_pln, 2) AS efekt_walutowy_pln\r\n",
+        "FROM miesieczne\r\n",
+        "WHERE rn = 1\r\n",
+        "ORDER BY data;\r\n"
+      ]
+    },
+    {
+      "name": "9b2541d9",
+      "displayName": "KPI_Portfel",
+      "queryLines": [
+        "WITH ostatni AS (\r\n",
+        "    SELECT\r\n",
+        "        date,\r\n",
+        "        value_pln,\r\n",
+        "        value_pln_fixed_fx\r\n",
+        "    FROM workspace.fin_gold.portfolio_daily\r\n",
+        "    ORDER BY date DESC\r\n",
+        "    LIMIT 1\r\n",
+        "),\r\n",
+        "ryzyko AS (\r\n",
+        "    SELECT MIN(drawdown) AS max_drawdown\r\n",
+        "    FROM workspace.fin_gold.portfolio_daily\r\n",
+        "),\r\n",
+        "wyniki AS (\r\n",
+        "    SELECT cagr_pln\r\n",
+        "    FROM workspace.fin_gold.risk_return\r\n",
+        "    WHERE instrument_type = 'portfolio'\r\n",
+        ")\r\n",
+        "SELECT\r\n",
+        "    ROUND(o.value_pln, 0)\r\n",
+        "        AS wartosc_portfela_pln,\r\n",
+        "\r\n",
+        "    ROUND((o.value_pln / 100000.0 - 1) * 100, 2)\r\n",
+        "        AS zwrot_laczny_proc,\r\n",
+        "\r\n",
+        "    ROUND(w.cagr_pln * 100, 2)\r\n",
+        "        AS cagr_proc,\r\n",
+        "\r\n",
+        "    ROUND(r.max_drawdown * 100, 2)\r\n",
+        "        AS maks_obsuniecie_proc,\r\n",
+        "\r\n",
+        "    ROUND(o.value_pln_fixed_fx - o.value_pln, 0)\r\n",
+        "        AS roznica_kursowa_pln\r\n",
+        "FROM ostatni o\r\n",
+        "CROSS JOIN ryzyko r\r\n",
+        "CROSS JOIN wyniki w;\r\n"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "abec677e",
+      "displayName": "Financial Data Lakehouse | Analiza portfela USA.",
+      "layout": [
+        {
+          "widget": {
+            "name": "roczna-stopa-zwrotu-cagr-w-pln-2023-2026",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "0a368fb0",
+                  "fields": [
+                    {
+                      "name": "spolka",
+                      "expression": "`spolka`"
+                    },
+                    {
+                      "name": "cagr_proc",
+                      "expression": "`cagr_proc`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Roczna stopa zwrotu (CAGR) w PLN — 2023–2026</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "spolka",
+                  "displayName": "Spółka",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "cagr_proc",
+                  "displayName": "CAGR (%)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 8,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "pe-spolek-biezaca-wycena-vs-mediana-historyczna",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1656bca2",
+                  "fields": [
+                    {
+                      "name": "spolka",
+                      "expression": "`spolka`"
+                    },
+                    {
+                      "name": "sum(pe_biezace)",
+                      "expression": "SUM(`pe_biezace`)"
+                    },
+                    {
+                      "name": "sum(pe_mediana_historyczna)",
+                      "expression": "SUM(`pe_mediana_historyczna`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">P/E spółek — bieżąca wycena vs mediana historyczna</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "spolka",
+                  "displayName": "Spółka",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fields": [
+                    {
+                      "fieldName": "sum(pe_biezace)",
+                      "displayName": "Wskaźnik P/E"
+                    },
+                    {
+                      "fieldName": "sum(pe_mediana_historyczna)",
+                      "displayName": "Mediana historyczna"
+                    }
+                  ],
+                  "scale": {
+                    "type": "quantitative",
+                    "reverse": false
+                  },
+                  "axis": {
+                    "title": "Wskaźnik P/E"
+                  }
+                },
+                "color": {
+                  "legend": {
+                    "position": "bottom"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "czy-dolar-pomagal-inwestorowi-cagr-w-usd-vs-pln",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f8bcc687",
+                  "fields": [
+                    {
+                      "name": "spolka",
+                      "expression": "`spolka`"
+                    },
+                    {
+                      "name": "sum(cagr_pln)",
+                      "expression": "SUM(`cagr_pln`)"
+                    },
+                    {
+                      "name": "sum(cagr_usd)",
+                      "expression": "SUM(`cagr_usd`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Czy dolar pomagał inwestorowi? CAGR w USD vs PLN</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "spolka",
+                  "axis": {
+                    "title": "Spółka"
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "sum(cagr_pln)",
+                      "displayName": "CAGR w PLN"
+                    },
+                    {
+                      "fieldName": "sum(cagr_usd)",
+                      "displayName": "CAGR w USD"
+                    }
+                  ],
+                  "axis": {
+                    "title": "CAGR (%)"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "obsuniecie-kapitalu-portfela-drawdown",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a08bb18e",
+                  "fields": [
+                    {
+                      "name": "monthly(data)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `data`)"
+                    },
+                    {
+                      "name": "min(obsuniecie_proc)",
+                      "expression": "MIN(`obsuniecie_proc`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Obsunięcie kapitału portfela (Drawdown)</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(data)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "min(obsuniecie_proc)",
+                  "axis": {
+                    "title": "Obsunięcie (%)"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 23,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "ile-kosztowaly-nas-zmiany-kursu-dolara",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "6b7da59d",
+                  "fields": [
+                    {
+                      "name": "weekly(data)",
+                      "expression": "DATE_TRUNC(\"WEEK\", `data`)"
+                    },
+                    {
+                      "name": "sum(rzeczywista_wartosc_pln)",
+                      "expression": "SUM(`rzeczywista_wartosc_pln`)"
+                    },
+                    {
+                      "name": "sum(staly_kurs_pln)",
+                      "expression": "SUM(`staly_kurs_pln`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">\tIle kosztowały nas zmiany kursu dolara?</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "weekly(data)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "sum(rzeczywista_wartosc_pln)",
+                      "displayName": "Wartość rzeczywista"
+                    },
+                    {
+                      "fieldName": "sum(staly_kurs_pln)",
+                      "displayName": "Kurs stały"
+                    }
+                  ],
+                  "axis": {
+                    "title": "Wartość portfela (PLN)"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 29,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "wartosc-portfela",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9b2541d9",
+                  "fields": [
+                    {
+                      "name": "sum(wartosc_portfela_pln)",
+                      "expression": "SUM(`wartosc_portfela_pln`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "WARTOŚĆ PORTFELA",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(wartosc_portfela_pln)",
+                  "formatTemplate": "{{ @formatted }} zł"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "cagr-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9b2541d9",
+                  "fields": [
+                    {
+                      "name": "cagr_proc",
+                      "expression": "`cagr_proc`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "CAGR (%)",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "cagr_proc",
+                  "format": {
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "places": 2,
+                      "type": "max"
+                    },
+                    "type": "number-plain"
+                  },
+                  "formatTemplate": "{{ @formatted }}%"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "laczny-zwrot",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9b2541d9",
+                  "fields": [
+                    {
+                      "name": "sum(zwrot_laczny_proc)",
+                      "expression": "SUM(`zwrot_laczny_proc`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "ŁĄCZNY ZWROT",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(zwrot_laczny_proc)",
+                  "formatTemplate": "{{ @formatted }}%",
+                  "style": {
+                    "fontColor": {
+                      "themeColorType": "visualizationColors",
+                      "position": 3
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "maks-obsuniecie",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9b2541d9",
+                  "fields": [
+                    {
+                      "name": "sum(maks_obsuniecie_proc)",
+                      "expression": "SUM(`maks_obsuniecie_proc`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "MAKS. OBSUNIĘCIE",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(maks_obsuniecie_proc)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    },
+                    "significantFigures": {
+                      "type": "all"
+                    }
+                  },
+                  "style": {
+                    "fontColor": {
+                      "themeColorType": "visualizationColors",
+                      "position": 4
+                    },
+                    "rules": [
+                      {
+                        "condition": {
+                          "operator": ">="
+                        },
+                        "fontColor": {
+                          "themeColorType": "visualizationColors",
+                          "position": 4
+                        }
+                      }
+                    ]
+                  },
+                  "formatTemplate": "{{ @formatted }}%"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "wybierz-spolke",
+            "queries": [
+              {
+                "name": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6ee835918c1a6d52fa67aa35d2a_spolka",
+                "query": {
+                  "datasetName": "0a368fb0",
+                  "fields": [
+                    {
+                      "name": "spolka",
+                      "expression": "`spolka`"
+                    },
+                    {
+                      "name": "spolka_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6f088e6134491c2d37035a482c2_spolka",
+                "query": {
+                  "datasetName": "1656bca2",
+                  "fields": [
+                    {
+                      "name": "spolka",
+                      "expression": "`spolka`"
+                    },
+                    {
+                      "name": "spolka_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6f24812106cae4e870746b52b91_spolka",
+                "query": {
+                  "datasetName": "f8bcc687",
+                  "fields": [
+                    {
+                      "name": "spolka",
+                      "expression": "`spolka`"
+                    },
+                    {
+                      "name": "spolka_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Wybierz spółkę",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "spolka",
+                    "queryName": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6ee835918c1a6d52fa67aa35d2a_spolka"
+                  },
+                  {
+                    "fieldName": "spolka",
+                    "queryName": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6f088e6134491c2d37035a482c2_spolka"
+                  },
+                  {
+                    "fieldName": "spolka",
+                    "queryName": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6f24812106cae4e870746b52b91_spolka"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "zakres-dat",
+            "queries": [
+              {
+                "name": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6f454c4184582a595855a3ca762_data",
+                "query": {
+                  "datasetName": "a08bb18e",
+                  "fields": [
+                    {
+                      "name": "data",
+                      "expression": "`data`"
+                    },
+                    {
+                      "name": "data_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d7b5fd9d10938c7f179a8a301156_data",
+                "query": {
+                  "datasetName": "6b7da59d",
+                  "fields": [
+                    {
+                      "name": "data",
+                      "expression": "`data`"
+                    },
+                    {
+                      "name": "data_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Zakres dat",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-date-range-picker",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "data",
+                    "queryName": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d6f454c4184582a595855a3ca762_data"
+                  },
+                  {
+                    "fieldName": "data",
+                    "queryName": "dashboards/01f1d6ee3d52162cbd2a00461c5008f2/datasets/01f1d7b5fd9d10938c7f179a8a301156_data"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "d4f9a4ff",
+            "multilineTextboxSpec": {
+              "lines": [
+                "<span style=\"font-size: 24px;\">Financial Data Lakehouse | Analiza rentowności i ryzyka portfela USA</span>\n",
+                "\n",
+                "Interaktywny panel analityczny pięciu amerykańskich spółek. Analiza historycznych stóp zwrotu, wycen P/E, ryzyka inwestycyjnego oraz wpływu kursu USD/PLN w latach 2023–2026. Dane: FMP, NBP i SEC EDGAR."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
