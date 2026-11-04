@@ -118,7 +118,7 @@ databricks bundle run -p dbc-8b06d9f3-fe92 --params mode=incremental fin_lakehou
 (setup → 3× ingest → silver → quality_silver → gold), parametry joba `mode=incremental`, `run_id={{job.run_id}}`.
 
 Kolejne uruchomienia: `mode = incremental` (domyślnie) – pobierane są tylko nowe dane.
-Harmonogram joba (dni robocze 7:30) jest początkowo wstrzymany. Po udanym teście zmień `pause_status` na `UNPAUSED` w `databricks.yml` i ponownie wdroż bundle (źródło prawdy w Git).
+Po udanym teście 04.11.2026 harmonogram joba (dni robocze 7:30, Europe/Warsaw) został przełączony na `UNPAUSED` w `databricks.yml`. **Aktywacja w workspace wymaga jeszcze `git pull --ff-only` i `databricks bundle deploy -p dbc-8b06d9f3-fe92`.**
 
 ### 5. Wyniki i aplikacja
 - `notebooks/07_analysis` – odpowiedzi na pytania P1–P4,
