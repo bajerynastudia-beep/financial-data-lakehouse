@@ -56,3 +56,9 @@
 - Dodano [docs/automatyzacja.md](docs/automatyzacja.md) z krokami wdrożenia przez Databricks CLI na Windows.
 - Harmonogram 07:30 w dni robocze jest celowo `PAUSED`, aż do udanego testowego uruchomienia.
 - **Do potwierdzenia w środowisku:** `bundle validate`, `bundle deploy`, pierwsze `bundle run`, ewentualna aktywacja harmonogramu.
+
+## 04.11.2026 – udany test joba
+- Wykonano lokalnie `databricks bundle validate` (Validation OK) i `bundle deploy` (1 job, 58 plików).
+- Uruchomiono `fin_lakehouse_pipeline` z `mode=incremental`; Databricks potwierdził `Succeeded` po 3 min 43 s (18:39–18:43 UTC / 19:39–19:43 Warszawa). Na screenie zadania `quality_silver` oraz `gold` są zielone.
+- W repo przełączono harmonogram na `UNPAUSED` (dni robocze o 07:30, Europe/Warsaw).
+- **Do aktywacji w Databricks:** lokalne `git pull --ff-only` + ponowny `databricks bundle deploy`, następnie kontrola zakładki Schedules & Triggers. Brak jeszcze potwierdzenia działania cyklicznego.
