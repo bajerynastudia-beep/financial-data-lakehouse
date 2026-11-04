@@ -112,4 +112,4 @@ Diagram: [architektura.md](architektura.md).
 | Dane osobowe? | Nie. Dane dotyczą spółek, kursów i notowań. Jedyna dana kontaktowa (e-mail w User-Agent dla SEC) jest sekretem i nie trafia do repozytorium ani do tabel. |
 | Właściciel danych i odpowiedzialność za jakość | Źródłowe: NBP, SEC (sprawozdania – spółki), FMP. Za przetworzenie i testy jakości odpowiada zespół projektu (właściciel potoku). |
 | Ryzyka błędnej interpretacji | wyniki historyczne nie gwarantują przyszłych; P/E z rocznego EPS (nie TTM) może być nieaktualne do 12+ mies.; jednorazowe zdarzenia zaburzają EPS; GPW poza bieżącym zakresem; ceny FMP mogą być korygowane o zdarzenia korporacyjne; **efekt przetrwania** – lista spółek wybrana dziś, a nie w 2023 r.; kurs NBP ≠ kurs transakcyjny. |
-| Komunikat dla użytkownika | Dashboard i notatnik analizy zawierają zastrzeżenie: *analiza danych historycznych, nie stanowi rekomendacji inwestycyjnej*. |
+| Komunikacja ograniczeń | Warunki i ograniczenia interpretacji danych historycznych, P/E i portfela modelowego są opisane w dokumentacji. Dashboard prezentuje wyniki analityczne w uproszczonej formie. |
