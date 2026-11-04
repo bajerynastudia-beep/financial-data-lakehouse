@@ -62,3 +62,9 @@
 - Uruchomiono `fin_lakehouse_pipeline` z `mode=incremental`; Databricks potwierdził `Succeeded` po 3 min 43 s (18:39–18:43 UTC / 19:39–19:43 Warszawa). Na screenie zadania `quality_silver` oraz `gold` są zielone.
 - W repo przełączono harmonogram na `UNPAUSED` (dni robocze o 07:30, Europe/Warsaw).
 - **Do aktywacji w Databricks:** lokalne `git pull --ff-only` + ponowny `databricks bundle deploy`, następnie kontrola zakładki Schedules & Triggers. Brak jeszcze potwierdzenia działania cyklicznego.
+
+## 04.11.2026 – aktualizacja powiadomień
+- Użytkowniczka uruchomiła `databricks bundle deploy -p dbc-8b06d9f3-fe92` po dodaniu konfiguracji alertów.
+- Databricks potwierdził `Updated jobs.fin_lakehouse_pipeline`; 2 pliki przesłane, 1 zasób zmieniony, bez błędów wdrożenia.
+- Konfiguracja w repo: `email_notifications.on_failure` wykorzystuje `${workspace.current_user.userName}` dla aktualnego użytkownika.
+- **Pozostało sprawdzić w Databricks UI:** odbiorcę powiadomień w ustawieniach joba oraz pierwsze faktyczne uruchomienie harmonogramu.
