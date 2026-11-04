@@ -79,3 +79,23 @@ wyłącznie w interfejsie Databricks może zostać nadpisana przy kolejnym wdro�
 - Free Edition: ograniczona liczba równoległych zadań, serwerless i limity fair usage.
 - Nie deklarujemy jeszcze, że automatyzacja zadziałała: wymaga rzeczywistego `bundle validate`,
   `deploy` i udanego uruchomienia w workspace.
+
+
+## Powiadomienia o awarii
+W definicji joba ustawiono `email_notifications.on_failure` na
+`${workspace.current_user.userName}`. Przy wdrożeniu z profilem
+`dbc-8b06d9f3-fe92` jest to adres użytkowniczki workspace.
+Dzięki temu nie zapisujemy jawnego adresu w publicznym repozytorium.
+Powiadomienie dotyczy błędu **całego joba**, po ewentualnych ponowieniach zadań.
+Brak wiadomości po sukcesie jest zamierzony.
+
+Aby wdrożyć alert po zmianach w Git:
+```powershell
+cd C:\Users\k_mal\financial-data-lakehouse
+git pull --ff-only
+databricks bundle validate -p dbc-8b06d9f3-fe92
+databricks bundle deploy -p dbc-8b06d9f3-fe92
+```
+Następnie sprawdź w Databricks `Jobs & Pipelines → Job → Edit → Notifications`,
+czy pod `On failure` jest Twój adres. Nie wywołuj sztucznej awarii
+na produkcyjnym potoku tylko po to, aby przetestować alert.
