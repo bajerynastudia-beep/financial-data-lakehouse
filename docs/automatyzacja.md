@@ -10,7 +10,7 @@ Jeden job `fin_lakehouse_pipeline` z 7 zadaniami:
 5. `gold` – budowa 9 tabel Gold i testy jakości.
 
 Harmonogram kodu: poniedziałek–piątek 07:30, `Europe/Warsaw`,
-`0 30 7 ? * MON-FRI`; na początku ustawiony na `PAUSED`.
+`0 30 7 ? * MON-FRI`; **stan repozytorium na 04.11.2026: `UNPAUSED` po udanym teście joba; wymaga ponownego `bundle deploy` w workspace.**
 Tryb codzienny: `incremental`. `max_concurrent_runs: 1`.
 Sekrety są odczytywane z już utworzonego scope `fin-lakehouse`,
 a nie zapisane w GitHubie.
@@ -36,7 +36,7 @@ Jeśli katalog już istnieje, zamiast `git clone` wykonaj w nim
 `winget install --id Git.Git -e`, a potem uruchom ponownie PowerShell.
 
 CLI wdraża kopię plików do workspace jako bundle (`dev`).
-Nie uruchamia automatycznie harmonogramu, ponieważ `pause_status: PAUSED`.
+Po ostatniej zmianie `pause_status: UNPAUSED`, ponowne wdrożenie **aktywuje harmonogram**. Nie uruchamiaj wdrożenia, jeśli chcesz zachować wstrzymany harmonogram.
 Databricks Free Edition obsługuje serverless jobs, jednak ma limity wykorzystania.
 
 ## Kontrola testowego uruchomienia
@@ -58,10 +58,9 @@ Databricks Free Edition obsługuje serverless jobs, jednak ma limity wykorzystan
 5. Otwórz dashboard i zweryfikuj aktualność po odświeżeniu datasetów.
 
 ## Uruchomienie codziennego harmonogramu
-**Dopiero gdy testowa seria zadań zakończy się sukcesem:**
-- w `databricks.yml` zmień `pause_status: PAUSED` na `pause_status: UNPAUSED`,
-- zapisz i wypchnij zmianę do GitHub,
+**Test 04.11.2026 ukończony `Succeeded` (3 min 43 s). Kod w GitHub został już zaktualizowany:**
 - w lokalnym klonie `git pull --ff-only`,
+- wykonaj `databricks bundle validate -p dbc-8b06d9f3-fe92`,
 - wykonaj `databricks bundle deploy -p dbc-8b06d9f3-fe92`.
 - Sprawdź w `Jobs & Pipelines → Schedules & Triggers`, czy harmonogram jest aktywny.
 
