@@ -57,33 +57,6 @@
       ]
     },
     {
-      "name": "20ee2598",
-      "displayName": "Monthly Portfolio Value and Currency Impact Summary",
-      "queryLines": [
-        "\r\n",
-        "WITH miesieczne AS (\r\n",
-        "    SELECT\r\n",
-        "        date,\r\n",
-        "        value_pln,\r\n",
-        "        value_pln_fixed_fx,\r\n",
-        "        fx_effect_pln,\r\n",
-        "        ROW_NUMBER() OVER (\r\n",
-        "            PARTITION BY DATE_TRUNC('MONTH', date)\r\n",
-        "            ORDER BY date DESC\r\n",
-        "        ) AS rn\r\n",
-        "    FROM workspace.fin_gold.portfolio_daily\r\n",
-        ")\r\n",
-        "SELECT\r\n",
-        "    date AS data,\r\n",
-        "    ROUND(value_pln, 2) AS rzeczywista_wartosc_pln,\r\n",
-        "    ROUND(value_pln_fixed_fx, 2) AS staly_kurs_pln,\r\n",
-        "    ROUND(fx_effect_pln, 2) AS efekt_walutowy_pln\r\n",
-        "FROM miesieczne\r\n",
-        "WHERE rn = 1\r\n",
-        "ORDER BY data;\r\n"
-      ]
-    },
-    {
       "name": "6b7da59d",
       "displayName": "P3_Wartosc_portfela_waluty",
       "queryLines": [
@@ -216,7 +189,7 @@
           "position": {
             "x": 0,
             "y": 5,
-            "width": 8,
+            "width": 12,
             "height": 6
           }
         },
