@@ -54,3 +54,14 @@ Filtry: zakres dat, spółka, sektor (obecny zakres: USA). Na każdej stronie za
 
 Odświeżanie: dashboard czyta tabele Gold, więc pokazuje wynik ostatniego poprawnego uruchomienia potoku.
 Można dodać harmonogram odświeżania w ustawieniach dashboardu po godzinie uruchomienia joba.
+
+## Ograniczenie jakości EPS – do uwzględnienia w interpretacji P/E
+Reguła `eps_restatement_split_suspect` zgłosiła 6 historycznych przypadków w
+`fin_silver.eps_facts` (m.in. dane Coca-Cola 2010–2011, Apple 2012–2013 i 2018).
+Rozbieżności EPS są zgodne z możliwymi przeliczeniami po splitach, jednak nie
+są dowodem ich przyczyny. Model wyceny porównuje cenę USD z ostatnim rocznym
+EPS znanym na dzień wyceny (z uwzględnieniem daty publikacji zgłoszenia w SEC),
+a nie z EPS TTM. Przed oddaniem należy zweryfikować, że odczyty EPS wykorzystane
+w latach 2023–2026 nie sięgają problematycznych lat, i opisać ograniczenia
+historycznego P/E. Ostrzeżenia nie wyłączamy ani nie poprawiamy ręcznie danych
+bez źródłowego uzasadnienia.
