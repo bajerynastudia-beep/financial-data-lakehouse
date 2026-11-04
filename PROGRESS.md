@@ -117,3 +117,9 @@
 - Poprzedni job aktualizacji tabel Gold jest zaplanowany na dni robocze 07:30 Europe/Warsaw. Dashboard zaplanowano na 08:00 czasu UTC+1 (zrzut z listopada).
 - Do potwierdzenia: częstotliwość odświeżania dashboardu, obsługa zmiany czasu i pierwsze wykonanie według harmonogramu. Harmonogram dashboardu nie oczekuje automatycznie na zakończenie joba.
 - Ostatnie kroki przed oddaniem: dodać zastrzeżenie edukacyjne, poprawić nazwę obiektu dashboardu, opublikować aktualną wersję i ponownie wyeksportować plik `.lvdash.json`.
+
+## 04.11.2026 – końcowy eksport dashboardu AI/BI
+- Użytkowniczka przekazała nowy eksport po zmianie nazwy obiektu dashboardu. Zastąpiono nim `dashboards/financial-data-lakehouse.lvdash.json` w głównej gałęzi GitHub (commit `66046228595339823d0d5c661489e42be1574010`).
+- Ostateczny plik ma 6 datasetów SQL, 5 wykresów, 4 KPI, 2 filtry i nagłówek. Zbędny dataset z poprzedniego eksportu został usunięty.
+- Na prośbę autorki dashboard pozostaje bez dodatkowego tekstu o rekomendacjach inwestycyjnych. Ograniczenia metodologiczne są opisane w `docs/dashboard.md`.
+- Pozostało potwierdzić pierwsze wykonanie harmonogramu i opcjonalnie import eksportu w czystym środowisku.
