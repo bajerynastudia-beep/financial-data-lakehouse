@@ -73,3 +73,9 @@
 - Użytkowniczka pokazała sekcję `Job notifications` z odbiorcą zaczynającym się od `bajery.na.studia...` i wyzwalaczem `On failure`; na ekranie widać również `Bundle repository URL` wskazujący repozytorium GitHub.
 - Potwierdzono, że konfiguracja alertów jest widoczna w UI. Dostarczenie e-maila przy faktycznej awarii nie było testowane.
 - Dalsze zadania: sprawdzić 22 kontrole DQ ostatniego uruchomienia, wykonanie harmonogramu 05.11.2026 i kompletność projektu przed oddaniem.
+
+## 04.11.2026 – audyt kontroli jakości Silver i Gold
+- Na podstawie wyniku zapytania do `workspace.fin_ops.dq_results` dla najnowszego `run_id`: dokładnie 22 testy.
+- `PASS` / `error`: 15 testów, 0 naruszeń; `PASS` / `warn`: 6 testów, 0 naruszeń; `WARN` / `warn`: 1 test, 6 naruszeń.
+- **Łącznie: 21 PASS, 1 WARN, 0 FAIL**, bez zablokowania potoku. Nazwa reguły ostrzegawczej wymaga potwierdzenia w wynikach szczegółowych; wcześniejsze uruchomienie zgłaszało `eps_restatement_split_suspect`.
+- Pozostaje sprawdzenie świeżości Gold, faktycznego pierwszego uruchomienia planowego i kompletności dashboardu przed oddaniem.
