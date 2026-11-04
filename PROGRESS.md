@@ -111,3 +111,9 @@
 - Nazwa obiektu dashboardu w nagłówku nadal brzmiała `New Dashboard 2026-11-02 19:29:40`, chociaż nagłówek strony ma docelowy tytuł. Do poprawy nazwa obiektu.
 - W prawym górnym rogu był wskaźnik `23h ago` oraz opcja `Schedule`; nie potwierdzono jeszcze osobnego harmonogramu odświeżania dashboardu po jobie.
 - Należy dodać zastrzeżenie o edukacyjnym charakterze analizy, po zmianach ponownie opublikować i wyeksportować nowszą definicję `.lvdash.json` do GitHub.
+
+## 04.11.2026 – harmonogram odświeżania dashboardu
+- Użytkowniczka pokazała sekcję Databricks Dashboard `Schedules` z wpisem `At 08:00 (UTC+1)`, trybem `Refresh` i jednym odbiorcą.
+- Poprzedni job aktualizacji tabel Gold jest zaplanowany na dni robocze 07:30 Europe/Warsaw. Dashboard zaplanowano na 08:00 czasu UTC+1 (zrzut z listopada).
+- Do potwierdzenia: częstotliwość odświeżania dashboardu, obsługa zmiany czasu i pierwsze wykonanie według harmonogramu. Harmonogram dashboardu nie oczekuje automatycznie na zakończenie joba.
+- Ostatnie kroki przed oddaniem: dodać zastrzeżenie edukacyjne, poprawić nazwę obiektu dashboardu, opublikować aktualną wersję i ponownie wyeksportować plik `.lvdash.json`.
