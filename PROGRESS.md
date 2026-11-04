@@ -85,3 +85,11 @@
 - Widoczne przykłady: CIK 21344 (Coca-Cola, 2010 i 2011, EPS ~×2), CIK 320193 (Apple, 2012 i 2013, EPS ~×7; 2018, EPS ~×4). Szczegóły testu pokazują tylko próbkę 5 z 6 przypadków.
 - Test analizuje roczne dodatnie EPS o tym samym `cik`, `period_start`, `period_end` w różnych zgłoszeniach SEC i sprawdza stosunek maksimum do minimum; nie rozstrzyga przyczyny bez analizy filingów.
 - Wyniki historycznej wyceny P/E mogą być podatne na niespójności skorygowanych/niekorygowanych splitów. **Nie potwierdzono jeszcze, czy roczne EPS z ostrzeżonych okresów są użyte w przedziale dashboardu 2023–2026.** Potrzebna kontrola `eps_period_end` w tabeli `workspace.fin_gold.fact_valuation_daily`.
+
+
+## 04.11.2026 – kontrola aktualności Gold
+- Na podstawie wyników SQL: `fact_prices_daily` 4820 rekordów (od 03.01.2023 do 04.11.2026), `fact_valuation_daily` również 4820, `fact_fx_daily` 2892, `portfolio_daily` 964.
+- Wspólny kalendarz 964 sesji: 5 instrumentów × 964 = 4820; waluty USD/EUR/PLN × 964 = 2892. Warstwa Gold rozciąga serie FX i wycen na kalendarz sesji.
+- W porównaniu z poprzednim snapshotem 4805 notowań FMP pojawiło się 15 dodatkowych rekordów dziennych (trzy sesje × pięć spółek).
+- **Uwaga do dalszego sprawdzenia:** wyniki z datą 04.11.2026 zostały pokazane przed zamknięciem sesji USA; należy upewnić się, że FMP zwraca finalny EOD lub aktualizuje tymczasowe notowania po sesji. Późniejsze uruchomienie 05.11 o 07:30 powinno już przypadać po zamknięciu sesji USA z 04.11.
+- Sprawdzono 4 widoczne spółki w kontroli EPS: AAPL, JPM, KO, MSFT mają 0 dni, w których wycena od 2023 korzysta z EPS 2018 lub starszego. Wynik XOM pozostaje do potwierdzenia.
