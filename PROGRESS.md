@@ -68,3 +68,8 @@
 - Databricks potwierdził `Updated jobs.fin_lakehouse_pipeline`; 2 pliki przesłane, 1 zasób zmieniony, bez błędów wdrożenia.
 - Konfiguracja w repo: `email_notifications.on_failure` wykorzystuje `${workspace.current_user.userName}` dla aktualnego użytkownika.
 - **Pozostało sprawdzić w Databricks UI:** odbiorcę powiadomień w ustawieniach joba oraz pierwsze faktyczne uruchomienie harmonogramu.
+
+## 04.11.2026 – kontrola alertów w interfejsie
+- Użytkowniczka pokazała sekcję `Job notifications` z odbiorcą zaczynającym się od `bajery.na.studia...` i wyzwalaczem `On failure`; na ekranie widać również `Bundle repository URL` wskazujący repozytorium GitHub.
+- Potwierdzono, że konfiguracja alertów jest widoczna w UI. Dostarczenie e-maila przy faktycznej awarii nie było testowane.
+- Dalsze zadania: sprawdzić 22 kontrole DQ ostatniego uruchomienia, wykonanie harmonogramu 05.11.2026 i kompletność projektu przed oddaniem.
