@@ -79,3 +79,9 @@
 - `PASS` / `error`: 15 testów, 0 naruszeń; `PASS` / `warn`: 6 testów, 0 naruszeń; `WARN` / `warn`: 1 test, 6 naruszeń.
 - **Łącznie: 21 PASS, 1 WARN, 0 FAIL**, bez zablokowania potoku. Nazwa reguły ostrzegawczej wymaga potwierdzenia w wynikach szczegółowych; wcześniejsze uruchomienie zgłaszało `eps_restatement_split_suspect`.
 - Pozostaje sprawdzenie świeżości Gold, faktycznego pierwszego uruchomienia planowego i kompletności dashboardu przed oddaniem.
+
+## 04.11.2026 – identyfikacja jedynego ostrzeżenia jakości
+- Reguła: `eps_restatement_split_suspect`, tabela: `workspace.fin_silver.eps_facts`, 6 przypadków, ważność `warn`.
+- Widoczne przykłady: CIK 21344 (Coca-Cola, 2010 i 2011, EPS ~×2), CIK 320193 (Apple, 2012 i 2013, EPS ~×7; 2018, EPS ~×4). Szczegóły testu pokazują tylko próbkę 5 z 6 przypadków.
+- Test analizuje roczne dodatnie EPS o tym samym `cik`, `period_start`, `period_end` w różnych zgłoszeniach SEC i sprawdza stosunek maksimum do minimum; nie rozstrzyga przyczyny bez analizy filingów.
+- Wyniki historycznej wyceny P/E mogą być podatne na niespójności skorygowanych/niekorygowanych splitów. **Nie potwierdzono jeszcze, czy roczne EPS z ostrzeżonych okresów są użyte w przedziale dashboardu 2023–2026.** Potrzebna kontrola `eps_period_end` w tabeli `workspace.fin_gold.fact_valuation_daily`.
