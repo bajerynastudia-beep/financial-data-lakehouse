@@ -122,7 +122,8 @@ Po udanym teście 04.11.2026 harmonogram joba (dni robocze 7:30, Europe/Warsaw) 
 
 ### 5. Wyniki i aplikacja
 - `notebooks/07_analysis` – odpowiedzi na pytania P1–P4,
-- dashboard AI/BI – zapytania w `sql/dashboard_queries.sql`, instrukcja w [docs/dashboard.md](docs/dashboard.md).
+- dashboard AI/BI – definicja [`.lvdash.json`](dashboards/financial-data-lakehouse.lvdash.json) i [opis](docs/dashboard.md).
+- **Prezentacja na zaliczenie:** [scenariusz 15 slajdów, demo i odpowiedzi na pytania](docs/prezentacja_na_zaliczenie.md).
 
 ### 6. Testy automatyczne (lokalnie)
 Wymagany Python 3.10+ i Java 17 (dla PySpark):
