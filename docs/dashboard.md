@@ -1,67 +1,55 @@
-# Dashboard Databricks AI/BI – status i odtworzenie
+# Dashboard Databricks AI/BI – wersja końcowa
 
-**Status (03.11.2026):** dashboard utworzony i przetestowany interaktywnie w Databricks Free Edition.
-Eksport dostarczony przez autorkę jest zapisany jako
+Dashboard **Financial Data Lakehouse | Analiza portfela USA** został zbudowany i opublikowany
+w Databricks Free Edition. Definicję odtwarzalną z repozytorium zapisano w pliku
 [`dashboards/financial-data-lakehouse.lvdash.json`](../dashboards/financial-data-lakehouse.lvdash.json).
+Ostatni eksport dostarczono 04.11.2026 i zastąpiono nim poprzednią wersję.
 
-**Faktyczny eksport zawiera:** jedną stronę, 5 wykresów (CAGR w PLN, bieżący P/E vs mediana,
-CAGR USD vs PLN, miesięczne minimum drawdown, wartość portfela przy rzeczywistym i stałym kursie),
-4 liczniki KPI, filtr spółki i filtr zakresu dat, 7 datasetów SQL (jeden zbędny, nieużywany).
-Filtr spółki jest powiązany z trzema datasetami spółek, a filtr dat z dwoma datasetami czasowymi.
-Kafelki KPI dotyczą pełnego portfela i nie powinny być filtrowane po spółce lub dacie.
+## Zawartość i źródła
 
-**Należy jeszcze sprawdzić przed oddaniem:** czy istnieje opublikowana wersja dashboardu
-(sam eksport nie stanowi dowodu publikacji), czy można go importować na innym koncie,
-oraz czy u dołu dodano zastrzeżenie o charakterze edukacyjnym. W dostarczonym eksporcie
-nie ma jeszcze tekstu `Nie stanowi rekomendacji inwestycyjnej`. Warto też usunąć niewykorzystany
-dataset `Monthly Portfolio Value and Currency Impact Summary` i wyeksportować ponownie.
+W pliku znajduje się jedna strona, 6 datasetów SQL oraz 12 elementów strony:
+- 4 liczniki KPI: wartość portfela (PLN), łączny zwrot, CAGR i maksymalne obsunięcie;
+- 5 wykresów: CAGR spółek w PLN, bieżące P/E kontra mediana historyczna,
+  CAGR w USD kontra PLN, miesięczne minimalne obsunięcie portfela,
+  wartość portfela w PLN przy kursie rzeczywistym i stałym;
+- 2 interaktywne filtry: pojedyncza spółka (trzy wykresy spółkowe)
+  i zakres dat (dwa wykresy czasowe);
+- nagłówek z opisem tematu i źródłami FMP, NBP oraz SEC EDGAR.
 
-**Import:** w Databricks otwórz Dashboards → Create / Import from file (w zależności od wersji UI),
-wskaż plik `.lvdash.json`, a po imporcie zweryfikuj uprawnienia do tabel
-`workspace.fin_gold.*` i dostęp do SQL Warehouse. Export nie przenosi danych ani sekretów FMP/SEC.
-Użytkownik importujący musi mieć dostęp do tych tabel oraz prawidłowo zbudowaną warstwę Gold.
+Definicja korzysta z tabel `workspace.fin_gold.risk_return`,
+`workspace.fin_gold.valuation_snapshot` i `workspace.fin_gold.portfolio_daily`.
+Wskaźniki KPI dotyczą całego okresu i nie są przeliczane po zmianie filtrów.
 
----
+## Aktualizacja danych
 
-# Dashboard (tydzień 3) – jak zbudować w Databricks AI/BI
+Job `fin_lakehouse_pipeline` aktualizuje warstwy Bronze → Silver → Gold
+w dni robocze o **07:30 Europe/Warsaw**, po udanym teście całości 04.11.2026.
+Na opublikowanym dashboardzie ustawiono niezależny harmonogram odświeżania o
+**08:00 (UTC+1 widoczne w listopadzie)**, w trybie `Refresh`.
+Nadal trzeba potwierdzić częstotliwość i zachowanie tego harmonogramu
+po zmianie czasu. Odświeżenie dashboardu nie czeka automatycznie na zakończenie joba.
 
-Wymaganie projektu: interaktywny interfejs korzystający z danych z potoku, odpowiadający na co najmniej
-dwa pytania z karty projektu. Proponowany układ – **do decyzji i wykonania przez zespół**.
+## Import i odtworzenie
 
-## Kroki
-1. Uruchom potok (job albo notatniki `01`–`06`), sprawdź wyniki w `07_analysis`.
-2. W Databricks: **New → Dashboard**.
-3. Zakładka **Data**: dodaj zapytania z `sql/dashboard_queries.sql` – każde jako osobny dataset.
-4. Zakładka **Canvas**: dodaj wizualizacje (tabela poniżej) i filtry.
-5. **Publish**. Eksport do repozytorium: menu ⋮ → *Export* → plik `.lvdash.json` zapisz w `dashboards/`
-   (dzięki temu oceniający zaimportuje dashboard, a zmiany są w historii Git).
+1. Uruchom pipeline, aby utworzyć wszystkie tabele `workspace.fin_gold.*`.
+2. W Databricks otwórz **Dashboards** i zaimportuj plik `.lvdash.json`
+   zgodnie z dostępnymi opcjami interfejsu.
+3. Zweryfikuj uprawnienia do katalogu `workspace` i tabel Gold oraz dostęp do SQL Warehouse.
+4. Sprawdź wykresy i filtry; publikację i harmonogram ustaw ponownie w docelowym workspace.
 
-## Proponowane strony i wizualizacje
+Eksport nie zawiera danych źródłowych ani kluczy do API. Sam zapis pliku
+nie potwierdza udanego importu na nowym koncie — ten test wciąż pozostaje do wykonania.
 
-| Strona | Wizualizacja | Dataset | Pytanie |
-|---|---|---|---|
-| Screening | wykres punktowy: zmienność (X) vs CAGR w PLN (Y), kolor = rynek | P1 | P1 |
-| Screening | tabela rankingu zwrot/ryzyko | P1 | P1 |
-| Wycena | słupki: percentyl historyczny P/E (0–100%) dla spółek z USA | P2a | P2 |
-| Wycena | linia: P/E w czasie, filtr = spółka | P2b | P2 |
-| Waluty | słupki: CAGR w USD vs w PLN | P3a | P3 |
-| Waluty | linia: wartość portfela z kursem rzeczywistym i stałym + USD/PLN | P3b | P3 |
-| Ryzyko | obszar: drawdown portfela; linia: zmienność krocząca | P4 | P4 |
-| Jakość danych | tabela wyników testów + licznik „ostatnia aktualizacja” | DQ, aktualność | – |
+## Ograniczenia analizy
 
-Filtry: zakres dat, spółka, sektor (obecny zakres: USA). Na każdej stronie zastrzeżenie:
-*„Analiza danych historycznych na potrzeby projektu – nie stanowi rekomendacji inwestycyjnej.”*
+- Wskaźnik P/E wykorzystuje **ostatni dostępny roczny rozwodniony EPS**,
+  nie EPS TTM; mediana odnosi się do okresu dostępnych notowań.
+- Reguła jakości `eps_restatement_split_suspect` wykryła 6 historycznych
+  podejrzanych przypadków EPS. Weryfikacja dla pięciu spółek wykazała, że
+  wyceny od 2023 r. nie korzystają z EPS dla okresów kończących się w 2018 r. lub wcześniej.
+  Nie zastępuje to pełnej walidacji danych sprawozdawczych.
+- Odświeżenie najnowszych dziennych danych w trakcie trwającej sesji giełdowej
+  nie przesądza o ich finalności EOD.
 
-Odświeżanie: dashboard czyta tabele Gold, więc pokazuje wynik ostatniego poprawnego uruchomienia potoku.
-Można dodać harmonogram odświeżania w ustawieniach dashboardu po godzinie uruchomienia joba.
-
-## Ograniczenie jakości EPS – do uwzględnienia w interpretacji P/E
-Reguła `eps_restatement_split_suspect` zgłosiła 6 historycznych przypadków w
-`fin_silver.eps_facts` (m.in. dane Coca-Cola 2010–2011, Apple 2012–2013 i 2018).
-Rozbieżności EPS są zgodne z możliwymi przeliczeniami po splitach, jednak nie
-są dowodem ich przyczyny. Model wyceny porównuje cenę USD z ostatnim rocznym
-EPS znanym na dzień wyceny (z uwzględnieniem daty publikacji zgłoszenia w SEC),
-a nie z EPS TTM. Przed oddaniem należy zweryfikować, że odczyty EPS wykorzystane
-w latach 2023–2026 nie sięgają problematycznych lat, i opisać ograniczenia
-historycznego P/E. Ostrzeżenia nie wyłączamy ani nie poprawiamy ręcznie danych
-bez źródłowego uzasadnienia.
+Te informacje pozostają w dokumentacji metodologii; dashboard celowo
+skupia się na wynikach i interaktywnych analizach.
