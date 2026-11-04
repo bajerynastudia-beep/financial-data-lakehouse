@@ -98,3 +98,9 @@
 - W `workspace.fin_gold.fact_prices_daily` wszystkie 5 tickerów (AAPL, JPM, KO, MSFT, XOM) mają zarówno `MAX(date)`, jak i `MAX(CASE WHEN NOT is_filled THEN date END)` równe `2026-11-04`.
 - Agregacja `COUNT_IF(is_filled)` pokazała puste wartości na zrzucie ekranu, nie potwierdzono jeszcze liczby historycznych uzupełnień (należy użyć `SUM(CASE WHEN is_filled THEN 1 ELSE 0 END)`).
 - Data 04.11 nie jest dowodem uzyskania finalnych cen EOD przed zamknięciem sesji w USA. Po sesji warto porównać dane źródłowe FMP / ponowne uruchomienie incremental.
+
+## 04.11.2026 – zakończenie kontroli wykorzystania historycznych EPS
+- Dodatkowe zapytanie dla XOM: najstarszy używany `eps_period_end` = `2021-12-31`; `dni_z_historycznym_eps` (okresy do 2018-12-31 włącznie) = 0.
+- Łącznie wszystkie 5 spółek (AAPL, MSFT, KO, JPM, XOM) ma 0 dni wycen od 2023 r. opartych na EPS z roku 2018 lub starszych.
+- Wcześniejsze ostrzeżenie `eps_restatement_split_suspect` (6 przypadków w SEC) pozostaje ważną informacją o danych historycznych, ale wskazane podejrzane lata 2010–2018 nie są wykorzystywane w badanym okresie 2023–2026.
+- Nie oznacza to pełnego audytu wartości P/E; do potwierdzenia pozostała publikacja dashboardu oraz pierwsze planowe uruchomienie joba.
