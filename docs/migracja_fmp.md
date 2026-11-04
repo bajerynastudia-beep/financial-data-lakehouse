@@ -40,5 +40,7 @@
 
 ## Stan walidacji
 - Kod zaktualizowano w repozytorium GitHub, testy jednostkowe uruchamia GitHub Actions.
-- Nie potwierdzono jeszcze działania FMP dla wszystkich pięciu spółek i historii od 2023 r.
-- Nie wykonano jeszcze pełnego uruchomienia Databricks ani nie opublikowano dashboardu.
+- Potwierdzono pobranie 961 notowań FMP na każdą z 5 spółek, od 03.01.2023 do 30.10.2026 (łącznie 4805 rekordów) w uruchomieniu Full.
+- Wykonano pełne ładowanie i testowy job incremental w Databricks (04.11.2026: `Succeeded`, 3 min 43 s).
+- Dashboard AI/BI z 5 wykresami i 2 filtrami wyeksportowano do `dashboards/financial-data-lakehouse.lvdash.json`; publikacja nie została osobno potwierdzona.
+- Testy Silver+Gold: 22, w tym 21 PASS, 1 WARN (6 naruszeń reguły ostrzegawczej), 0 FAIL.
