@@ -33,4 +33,4 @@
 - Alerty: e-mail, gdy spółka spadnie do najniższych 10% historycznego P/E albo drawdown portfela przekroczy limit.
 - Kontrakty danych i *lineage* w Unity Catalog; osobne środowiska dev/prod w bundle.
 
-- Databricks nie został jeszcze przetestowany end-to-end po migracji. Bez poprawnego pełnego ładowania Gold i dashboard mogą pozostawać puste.
+- Przetestowano pełne ładowanie i wykonanie przyrostowe end-to-end po migracji (04.11.2026: `Succeeded`, 3 min 43 s); testy jakości: 21 PASS, 1 WARN, 0 FAIL. Nie potwierdzono jeszcze pierwszego faktycznego uruchomienia joba z harmonogramu.
