@@ -9,7 +9,12 @@ resources:
     fin_lakehouse_pipeline:
       name: fin-lakehouse-pipeline
       description: "NBP + FMP + SEC EDGAR -> Bronze -> Silver -> testy jakości -> Gold"
-      # Codziennie w dni robocze o 7:30 (po zamknięciu sesji w USA). Wstrzymane, dopóki nie włączycie w UI.
+      # Alert e-mail po nieudanym uruchomieniu calego joba.
+      # Uzyj uzytkownika workspace zamiast publikowac adres e-mail w repozytorium.
+      email_notifications:
+        on_failure:
+          - ${workspace.current_user.userName}
+      # Codziennie w dni robocze o 7:30 czasu polskiego; harmonogram aktywny.
       schedule:
         quartz_cron_expression: "0 30 7 ? * MON-FRI"
         timezone_id: Europe/Warsaw
