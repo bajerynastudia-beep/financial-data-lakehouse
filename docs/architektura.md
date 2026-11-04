@@ -58,8 +58,7 @@ flowchart LR
 | quality_silver | `05_quality_silver` | 15 testów; błąd krytyczny zatrzymuje job | – |
 | gold | `06_gold` | model analityczny + 7 testów spójności | – |
 
-Harmonogram: dni robocze 7:30 (Europe/Warsaw) – po zamknięciu sesji w USA. W bundle job jest wstrzymany
-(`PAUSED`), dopóki zespół nie włączy go w interfejsie.
+Harmonogram: dni robocze 7:30 (Europe/Warsaw) – po zamknięciu poprzedniej sesji w USA. W bundle job ma `pause_status: UNPAUSED` (stan 04.11.2026); wdrożenie i harmonogram potwierdzono w interfejsie Databricks. Pierwsze uruchomienie *z samego harmonogramu* pozostaje do sprawdzenia.
 
 ## Ładowanie przyrostowe i idempotentność
 
