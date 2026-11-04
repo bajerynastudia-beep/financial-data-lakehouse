@@ -64,7 +64,7 @@ PROGRESS.md              postęp tydzień po tygodniu
 Stooq odmówił dostępu do CSV (`Odmowa dostępu`). Migracja wykorzystuje FMP (sprawdzone pobieranie AAPL w Databricks).
 Obecny portfel zawiera **5 spółek USA**, z wagami po **20%**. Notowania FMP mogą być ograniczone historycznie na bezpłatnym planie:
 parametr `history_start: "2023-01-01"` jest **prośbą o zakres**, nie gwarancją, że API zwróci całą historię.
-Nie sprawdzono jeszcze end-to-end pracy nowego pipeline'u w docelowym workspace Databricks.
+Zweryfikowano end-to-end działanie potoku w docelowym Databricks: job incremental zakończony `Succeeded` 04.11.2026 (3 min 43 s), włączono harmonogram Pn.–Pt. 7:30 i alarm `On failure`. Ostatni audyt jakości: 22 testy (21 PASS, 1 WARN, 0 FAIL), 6 naruszeń w regule ostrzegawczej.
 
 Wymagane sekrety (w scope `fin-lakehouse`): `fmp_api_key`, `sec_user_agent`.
 Nie zapisuj API key w notebooku, .env ani GitHubie. **Istniejący katalog `workspace.bronze/silver/gold` pozostaje nietknięty**:
