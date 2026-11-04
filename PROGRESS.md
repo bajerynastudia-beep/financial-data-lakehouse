@@ -123,3 +123,10 @@
 - Ostateczny plik ma 6 datasetów SQL, 5 wykresów, 4 KPI, 2 filtry i nagłówek. Zbędny dataset z poprzedniego eksportu został usunięty.
 - Na prośbę autorki dashboard pozostaje bez dodatkowego tekstu o rekomendacjach inwestycyjnych. Ograniczenia metodologiczne są opisane w `docs/dashboard.md`.
 - Pozostało potwierdzić pierwsze wykonanie harmonogramu i opcjonalnie import eksportu w czystym środowisku.
+
+## 04.11.2026 – przygotowanie prezentacji na zaliczenie
+- Przygotowano 15-slajdową prezentację akademicką w formatach PPTX (z notatkami prowadzącej) i PDF, obejmującą problem, źródła, architekturę, transformacje, 9 tabel Gold, jakość, automatykę i pytania biznesowe P1–P4.
+- Utworzono scenariusz wypowiedzi, plan demonstracji na żywo na 120 sekund, FAQ i checklistę przygotowań: [docs/prezentacja_na_zaliczenie.md](docs/prezentacja_na_zaliczenie.md).
+- W prezentacji użyto rzeczywistych wizualizacji z dashboardu i wyników Gold według stanu 04.11.2026.
+- Uporządkowano starsze stwierdzenia o wstrzymanym harmonogramie i nieprzetestowanym potoku w README, docs/architektura.md i docs/ograniczenia.md.
+- **Nadal do weryfikacji w praktyce:** pierwsze zaplanowane uruchomienie joba, częstotliwość i strefa czasowa harmonogramu dashboardu oraz ewentualny import eksportu na czystym koncie.
