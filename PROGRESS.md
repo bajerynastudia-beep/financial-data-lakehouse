@@ -104,3 +104,10 @@
 - Łącznie wszystkie 5 spółek (AAPL, MSFT, KO, JPM, XOM) ma 0 dni wycen od 2023 r. opartych na EPS z roku 2018 lub starszych.
 - Wcześniejsze ostrzeżenie `eps_restatement_split_suspect` (6 przypadków w SEC) pozostaje ważną informacją o danych historycznych, ale wskazane podejrzane lata 2010–2018 nie są wykorzystywane w badanym okresie 2023–2026.
 - Nie oznacza to pełnego audytu wartości P/E; do potwierdzenia pozostała publikacja dashboardu oraz pierwsze planowe uruchomienie joba.
+
+## 04.11.2026 – potwierdzenie publikacji dashboardu
+- Użytkowniczka pokazała opublikowany widok Databricks AI/BI Dashboard: dostępny przycisk `Edit draft`, widoczne cztery KPI, filtry spółki i zakresu dat, wykresy CAGR i P/E.
+- Bieżący widok przedstawiał wartość portfela ~191,16 tys. PLN, CAGR ~18,4%, łączną stopę zwrotu ~91,16% i maks. drawdown -19,36%.
+- Nazwa obiektu dashboardu w nagłówku nadal brzmiała `New Dashboard 2026-11-02 19:29:40`, chociaż nagłówek strony ma docelowy tytuł. Do poprawy nazwa obiektu.
+- W prawym górnym rogu był wskaźnik `23h ago` oraz opcja `Schedule`; nie potwierdzono jeszcze osobnego harmonogramu odświeżania dashboardu po jobie.
+- Należy dodać zastrzeżenie o edukacyjnym charakterze analizy, po zmianach ponownie opublikować i wyeksportować nowszą definicję `.lvdash.json` do GitHub.
