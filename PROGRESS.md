@@ -93,3 +93,8 @@
 - W porównaniu z poprzednim snapshotem 4805 notowań FMP pojawiło się 15 dodatkowych rekordów dziennych (trzy sesje × pięć spółek).
 - **Uwaga do dalszego sprawdzenia:** wyniki z datą 04.11.2026 zostały pokazane przed zamknięciem sesji USA; należy upewnić się, że FMP zwraca finalny EOD lub aktualizuje tymczasowe notowania po sesji. Późniejsze uruchomienie 05.11 o 07:30 powinno już przypadać po zamknięciu sesji USA z 04.11.
 - Sprawdzono 4 widoczne spółki w kontroli EPS: AAPL, JPM, KO, MSFT mają 0 dni, w których wycena od 2023 korzysta z EPS 2018 lub starszego. Wynik XOM pozostaje do potwierdzenia.
+
+## 04.11.2026 – kontrola dat notowań wszystkich instrumentów
+- W `workspace.fin_gold.fact_prices_daily` wszystkie 5 tickerów (AAPL, JPM, KO, MSFT, XOM) mają zarówno `MAX(date)`, jak i `MAX(CASE WHEN NOT is_filled THEN date END)` równe `2026-11-04`.
+- Agregacja `COUNT_IF(is_filled)` pokazała puste wartości na zrzucie ekranu, nie potwierdzono jeszcze liczby historycznych uzupełnień (należy użyć `SUM(CASE WHEN is_filled THEN 1 ELSE 0 END)`).
+- Data 04.11 nie jest dowodem uzyskania finalnych cen EOD przed zamknięciem sesji w USA. Po sesji warto porównać dane źródłowe FMP / ponowne uruchomienie incremental.
