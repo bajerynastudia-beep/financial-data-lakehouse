@@ -69,6 +69,6 @@ def test_clean_eps_marks_annual_reports(spark, fixtures):
 def test_quarantine_keeps_original_record(spark):
     df = bronze(spark, fmp.BRONZE_COLUMNS, [({"ticker": "pko", "date": "02.01.2024", "close": "1"}, T1)])
     _, rejected = silver.clean_prices(df)
-    q = silver.to_quarantine(rejected, "bronze.stooq_prices").collect()[0]
+    q = silver.to_quarantine(rejected, "bronze.fmp_prices").collect()[0]
     assert q["reject_reason"] == "invalid_date"
     assert json.loads(q["record_json"])["date"] == "02.01.2024"  # oryginalna, niepoprawna wartość

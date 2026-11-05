@@ -2,12 +2,21 @@
 
 from __future__ import annotations
 
+import re
 import time
 from typing import Any, Callable, Mapping
 
 import requests
 
 RETRY_STATUSES = {429, 500, 502, 503, 504}
+
+# Parametry zapytania z sekretami (np. apikey FMP) nie mogą trafić do logów ani fin_ops.pipeline_runs.
+_SECRET_PARAM = re.compile(r"((?:api_?key|token)=)[^&\s'\"]+", re.IGNORECASE)
+
+
+def redact(text: str) -> str:
+    """Zastępuje wartości kluczy API w tekście (np. w komunikacie wyjątku z pełnym URL) znakami ***."""
+    return _SECRET_PARAM.sub(r"\1***", text)
 
 
 class SourceError(RuntimeError):
@@ -36,12 +45,12 @@ def get_with_retry(
         try:
             resp = http.get(url, params=params, headers=headers, timeout=timeout_s)
         except (requests.ConnectionError, requests.Timeout) as exc:
-            last_error = f"{type(exc).__name__}: {exc}"
+            last_error = redact(f"{type(exc).__name__}: {exc}")
         else:
             if resp.status_code < 400 or resp.status_code == 404:
                 return resp
             if resp.status_code not in RETRY_STATUSES:
-                raise SourceError(f"HTTP {resp.status_code} dla {url}: {resp.text[:200]}")
+                raise SourceError(redact(f"HTTP {resp.status_code} dla {url}: {resp.text[:200]}"))
             last_error = f"HTTP {resp.status_code}"
         if attempt < max_retries:
             sleep(backoff_s * (2**attempt))

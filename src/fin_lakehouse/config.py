@@ -117,8 +117,8 @@ def validate_config(cfg: Config) -> None:
 def get_secret(cfg: Config, name: str, dbutils: Any = None) -> str:
     """Zwraca sekret: najpierw Databricks secret scope, potem zmienna środowiskowa.
 
-    name: klucz z settings.yml -> secrets.keys (np. 'stooq_api_key').
-    Zmienna środowiskowa ma nazwę wielkimi literami (np. STOOQ_API_KEY).
+    name: klucz z settings.yml -> secrets.keys (np. 'fmp_api_key').
+    Zmienna środowiskowa ma nazwę wielkimi literami (np. FMP_API_KEY).
     """
     scope = cfg.settings["secrets"]["scope"]
     key = cfg.settings["secrets"]["keys"][name]

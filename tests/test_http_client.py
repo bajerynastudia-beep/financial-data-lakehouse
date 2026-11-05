@@ -2,7 +2,7 @@ import pytest
 import requests
 
 from conftest import FakeResponse
-from fin_lakehouse.http_client import SourceError, get_with_retry
+from fin_lakehouse.http_client import SourceError, get_with_retry, redact
 
 
 class Session:
@@ -43,3 +43,16 @@ def test_gives_up_after_max_retries():
     s = Session([FakeResponse(500)] * 3)
     with pytest.raises(SourceError, match="3 próbach"):
         get_with_retry("https://x", session=s, max_retries=2, sleep=lambda _: None)
+
+
+def test_api_key_is_redacted_from_network_errors():
+    err = requests.ConnectionError("Max retries exceeded with url: /full?symbol=AAPL&apikey=SECRET123&from=2023")
+    s = Session([err])
+    with pytest.raises(SourceError) as info:
+        get_with_retry("https://x", session=s, max_retries=0, sleep=lambda _: None)
+    assert "SECRET123" not in str(info.value)
+    assert "apikey=***" in str(info.value)
+
+
+def test_redact_keeps_other_params():
+    assert redact("?symbol=AAPL&apikey=abc&from=2023") == "?symbol=AAPL&apikey=***&from=2023"
