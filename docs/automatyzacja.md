@@ -18,7 +18,8 @@ a nie zapisane w GitHubie.
 ## Wdrożenie – PowerShell na Windows
 Warunki: zainstalowany Git oraz Databricks CLI i wykonane
 `databricks auth login --host https://TWOJ-WORKSPACE`.
-Użyj istniejącego profilu CLI (przykładowo `dbc-8b06d9f3-fe92`).
+W poleceniach zamień `<profil>` na nazwę swojego profilu CLI (wypisze ją `databricks auth profiles`).
+Jeśli masz tylko jeden profil (`DEFAULT`), parametr `-p <profil>` można pominąć.
 
 ```powershell
 git --version
@@ -26,9 +27,9 @@ databricks -v
 cd $HOME
 git clone https://github.com/bajerynastudia-beep/financial-data-lakehouse.git
 cd .\financial-data-lakehouse
-databricks bundle validate -p dbc-8b06d9f3-fe92
-databricks bundle deploy -p dbc-8b06d9f3-fe92
-databricks bundle run -p dbc-8b06d9f3-fe92 --params mode=incremental fin_lakehouse_pipeline
+databricks bundle validate -p <profil>
+databricks bundle deploy -p <profil>
+databricks bundle run -p <profil> --params mode=incremental fin_lakehouse_pipeline
 ```
 
 Jeśli katalog już istnieje, zamiast `git clone` wykonaj w nim
@@ -60,8 +61,8 @@ Databricks Free Edition obsługuje serverless jobs, jednak ma limity wykorzystan
 ## Uruchomienie codziennego harmonogramu
 **Test 04.11.2026 ukończony `Succeeded` (3 min 43 s). Kod w GitHub został już zaktualizowany:**
 - w lokalnym klonie `git pull --ff-only`,
-- wykonaj `databricks bundle validate -p dbc-8b06d9f3-fe92`,
-- wykonaj `databricks bundle deploy -p dbc-8b06d9f3-fe92`.
+- wykonaj `databricks bundle validate -p <profil>`,
+- wykonaj `databricks bundle deploy -p <profil>`.
 - Sprawdź w `Jobs & Pipelines → Schedules & Triggers`, czy harmonogram jest aktywny.
 
 To podejście zachowuje harmonogram w Git jako źródle prawdy. Sama zmiana harmonogramu
@@ -83,18 +84,18 @@ wyłącznie w interfejsie Databricks może zostać nadpisana przy kolejnym wdro�
 
 ## Powiadomienia o awarii
 W definicji joba ustawiono `email_notifications.on_failure` na
-`${workspace.current_user.userName}`. Przy wdrożeniu z profilem
-`dbc-8b06d9f3-fe92` jest to adres użytkowniczki workspace.
+`${workspace.current_user.userName}`. Jest to adres użytkownika,
+który wykonał `databricks bundle deploy`.
 Dzięki temu nie zapisujemy jawnego adresu w publicznym repozytorium.
 Powiadomienie dotyczy błędu **całego joba**, po ewentualnych ponowieniach zadań.
 Brak wiadomości po sukcesie jest zamierzony.
 
 Aby wdrożyć alert po zmianach w Git:
 ```powershell
-cd C:\Users\k_mal\financial-data-lakehouse
+cd $HOME\financial-data-lakehouse
 git pull --ff-only
-databricks bundle validate -p dbc-8b06d9f3-fe92
-databricks bundle deploy -p dbc-8b06d9f3-fe92
+databricks bundle validate -p <profil>
+databricks bundle deploy -p <profil>
 ```
 Następnie sprawdź w Databricks `Jobs & Pipelines → Job → Edit → Notifications`,
 czy pod `On failure` jest Twój adres. Nie wywołuj sztucznej awarii

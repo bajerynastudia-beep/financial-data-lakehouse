@@ -8,7 +8,7 @@ do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisu
 | ID | Data | Decyzja | Status |
 |---|---|---|---|
 | D-01 | 2026-10-08 | Platforma: Databricks Free Edition + Delta Lake | ✅ zespół |
-| D-02 | 2026-10-22 | Odbiorca: zespół inwestycyjny funduszu; źródła: GPW + USA, P/E z SEC | ✅ zespół |
+| D-02 | 2026-10-22 | Odbiorca: zespół inwestycyjny funduszu; źródła: GPW + USA, P/E z SEC | ✅ zespół; zakres zawężony do 5 spółek USA przez D-13 |
 | D-03 | 2026-10-22 | Architektura medalionowa + schemat `fin_ops` | ✅ zespół (wariant prostszy) |
 | D-04 | 2026-10-22 | Notowania ze Stooq (API z kluczem) | Zastąpiona przez D-13 (30.10) |
 | D-05 | 2026-10-22 | P/E z rocznego EPS z SEC EDGAR, bez look-ahead; spółki bez splitów | ✅ zespół (wariant prostszy) |
@@ -19,7 +19,7 @@ do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisu
 | D-10 | 2026-10-22 | Własny moduł testów jakości w PySpark | ✅ zespół (wariant prostszy) |
 | D-11 | 2026-10-22 | Logika w pakiecie `src/`, cienkie notatniki, CI w GitHub Actions | ✅ zespół (wariant prostszy) |
 | D-12 | 2026-10-22 | Aplikacja: dashboard AI/BI w Databricks | ✅ zespół (wariant prostszy) |
-| D-13 | 2026-10-30 | Zmiana Stooq → FMP i zakresu GPW+USA → 5 spółek USA | ✅ decyzja w toku realizacji; wymaga testu w Databricks |
+| D-13 | 2026-10-30 | Zmiana Stooq → FMP i zakresu GPW+USA → 5 spółek USA | ✅ zespół; zweryfikowana w Databricks 04.11.2026 |
 
 ---
 
@@ -58,7 +58,7 @@ do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisu
 - **Uzasadnienie:** oficjalny, bezpłatny kurs referencyjny znany analitykom w Polsce. W dni bez publikacji
   używamy ostatniego kursu i oznaczamy to flagą `fx_is_filled`.
 
-### D-07. Portfel modelowy: kup i trzymaj, równe wagi 10%
+### D-07. Portfel modelowy: kup i trzymaj, równe wagi (obecnie 5 × 20%)
 - **Alternatywy:** rebalancing miesięczny do wag docelowych; wagi według kapitalizacji.
 - **Uzasadnienie:** najprostszy do wyjaśnienia i zweryfikowania (test jednostkowy liczy wynik ręcznie);
   pozwala czysto oddzielić efekt kursowy. Wagi i data startu są w `config/portfolio.yml`.
@@ -97,4 +97,5 @@ do wyjaśnienia, odtworzenia i utrzymania), a bardziej złożone warianty zapisu
 - **Zakres:** AAPL, MSFT, KO, JPM, XOM; wszystkie spółki USD, z CIK w SEC. Portfel 5 × 20%, od 2023-01-02.
 - **Skutek:** usunięto instrumenty GPW i indeksy (niezakładana dostępność w planie FMP). Warstwy Silver/Gold i 4 pytania biznesowe zachowano.
 - **Ryzyka:** data historyczna dostępna w FMP może sięgać krócej niż 2023; licencja na publikację cen wymaga weryfikacji; dane o splitach i dywidendach mogą wpływać na P/E i zwroty.
-- **Walidacja:** testy jednostkowe w GitHub Actions oraz **konieczny** test źródeł + full load + Gold w docelowym Databricks.
+- **Walidacja:** testy jednostkowe w GitHub Actions; w Databricks test źródeł (3 × OK), pełne ładowanie
+  (FMP 5 × 961 notowań od 03.01.2023), testy jakości (21 PASS, 1 WARN, 0 FAIL) i job `Succeeded` 04.11.2026.

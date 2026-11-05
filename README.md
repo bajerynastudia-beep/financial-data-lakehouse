@@ -39,7 +39,7 @@ decyzje: [docs/decyzje.md](docs/decyzje.md) · ograniczenia: [docs/ograniczenia.
 ```
 config/                  konfiguracja bez sekretów
   settings.yml           katalog, schematy, źródła, progi testów jakości
-  instruments.yml        spółki i indeksy (ticker FMP, waluta, CIK w SEC)
+  instruments.yml        spółki (ticker FMP, waluta, CIK w SEC)
   portfolio.yml          portfel modelowy (wagi, data startu, kapitał)
 src/fin_lakehouse/       logika potoku (pakiet Pythona)
   sources/               pobieranie: nbp.py, fmp.py, sec.py
@@ -84,7 +84,7 @@ Potrzebne dwa sekrety w scope `fin-lakehouse`:
 
 | Klucz | Wartość | Skąd |
 |---|---|---|
-| `fmp_api_key` | klucz API FMP | https://site.financialmodelingprep.com/developer/docs |
+| `fmp_api_key` | własny klucz API FMP (bezpłatna rejestracja; każda osoba odtwarzająca projekt zakłada swój) | https://site.financialmodelingprep.com/developer/docs |
 | `sec_user_agent` | nazwa i e-mail, np. `Projekt ID jan.kowalski@example.com` | wymóg SEC EDGAR |
 
 Za pomocą Databricks CLI (na swoim komputerze; instalacja: https://docs.databricks.com/dev-tools/cli/install –
@@ -108,11 +108,12 @@ pokazuje status każdego źródła (NBP, FMP, SEC). Wszystkie muszą mieć statu
 **Opcja B – job jako kod (Databricks CLI):**
 Pełna instrukcja wdrożenia, testowego uruchomienia, aktywowania harmonogramu i diagnostyki:
 [docs/automatyzacja.md](docs/automatyzacja.md).
-Uruchamiaj poniższe polecenia **w lokalnym katalogu sklonowanego repozytorium** (tam, gdzie jest `databricks.yml`):
+Uruchamiaj poniższe polecenia **w lokalnym katalogu sklonowanego repozytorium** (tam, gdzie jest `databricks.yml`).
+`<profil>` to nazwa Twojego profilu Databricks CLI (`databricks auth profiles`); przy jednym profilu `-p <profil>` można pominąć.
 ```bash
-databricks bundle validate -p dbc-8b06d9f3-fe92
-databricks bundle deploy -p dbc-8b06d9f3-fe92
-databricks bundle run -p dbc-8b06d9f3-fe92 --params mode=incremental fin_lakehouse_pipeline
+databricks bundle validate -p <profil>
+databricks bundle deploy -p <profil>
+databricks bundle run -p <profil> --params mode=incremental fin_lakehouse_pipeline
 ```
 **Opcja C – job w interfejsie:** Jobs & Pipelines → Create job → zadania jak w `databricks.yml`
 (setup → 3× ingest → silver → quality_silver → gold), parametry joba `mode=incremental`, `run_id={{job.run_id}}`.
@@ -135,19 +136,24 @@ Te same testy uruchamia GitHub Actions przy każdym pushu (plakietka na górze R
 
 ## Jakość danych
 22 automatyczne testy w 7 rodzajach reguł (kompletność, unikalność, zakres, dozwolone wartości, integralność
-referencyjna, aktualność, reguły dziedzinowe). Test krytyczny, który nie przejdzie, **zatrzymuje job** przed
-warstwą Gold (czerwone zadanie `quality_silver` z opisem błędu); wszystkie wyniki trafiają do `fin_ops.dq_results`.
+referencyjna, aktualność, reguły dziedzinowe). Test krytyczny Silver (15 testów), który nie przejdzie, **zatrzymuje job** przed
+warstwą Gold (czerwone zadanie `quality_silver` z opisem błędu). 7 testów Gold sprawdza spójność już zbudowanego
+modelu – błąd oznacza czerwone zadanie `gold` i alert e-mail. Wszystkie wyniki trafiają do `fin_ops.dq_results`.
 Pełna lista: [docs/architektura.md](docs/architektura.md#testy-jakości-danych).
 
 ## Wykorzystanie AI
 Zgodnie z zasadami projektu opisujemy zakres użycia narzędzi AI:
-- **ChatGPT** – propozycje tematów projektu i wstępny plan.
+- **ChatGPT** – propozycje tematów projektu i wstępny plan; migracja źródła notowań ze Stooq na FMP
+  (30.10.2026: moduł `sources/fmp.py`, zmiany w notatnikach, `pipeline.py`, `databricks.yml` i testach).
 - **Claude (Anthropic)** – na podstawie wymagań projektu i decyzji zespołu (temat, odbiorca: fundusz inwestycyjny,
   zakres pierwotny: GPW + USA, P/E z danych SEC) wygenerował: kod pakietu `src/`, notatniki, testy, konfigurację, definicję
-  joba, workflow CI oraz szkice dokumentacji w `docs/`. Commity przygotowane przez AI mają w opisie
-  `Co-Authored-By: Claude`.
-- **Zespół:** wybór tematu, odbiorcy i źródeł, uruchomienie i weryfikacja potoku w Databricks, przegląd kodu,
-  potwierdzenie decyzji w `docs/decyzje.md`, dashboard **wyeksportowany do `dashboards/financial-data-lakehouse.lvdash.json` (03.11.2026)**; publikację i ponowny import należy jeszcze zweryfikować.
+  joba, workflow CI oraz szkice dokumentacji w `docs/`. 05.11.2026 przegląd repozytorium względem wymagań projektu:
+  maskowanie klucza API w logach, uporządkowanie dokumentacji, `PROGRESS.md` i tagów. Commity przygotowane przez AI
+  mają w opisie `Co-Authored-By: Claude`.
+- **Zespół:** wybór tematu, odbiorcy i źródeł, decyzje w `docs/decyzje.md`, uruchomienie i weryfikacja potoku
+  w Databricks (sekrety, pełne ładowanie, job z harmonogramem i alertem, kontrole SQL wyników Gold i testów jakości),
+  przegląd kodu, budowa i publikacja dashboardu AI/BI oraz jego eksport do
+  `dashboards/financial-data-lakehouse.lvdash.json` (wersja końcowa 04.11.2026).
 
 Autorzy odpowiadają za całe rozwiązanie; wyniki i kod wygenerowane przez AI weryfikujemy uruchomieniem,
 testami i przeglądem.

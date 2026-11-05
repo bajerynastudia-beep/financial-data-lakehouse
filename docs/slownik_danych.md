@@ -25,7 +25,7 @@ Wszystkie kolumny biznesowe zapisane jako **tekst, bez zmian** względem źród�
 | ticker | symbol spółki w FMP (z `config/instruments.yml`) |
 | date | data sesji |
 | open, high, low, close | cena otwarcia, najwyższa, najniższa, zamknięcia (waluta notowania) |
-| volume | wolumen (dla indeksów zwykle brak) |
+| volume | wolumen obrotu (liczba akcji) |
 
 ### `sec_eps_facts` – źródło: SEC EDGAR XBRL company facts
 | Kolumna | Znaczenie |
@@ -87,7 +87,7 @@ Wszystkie kolumny biznesowe zapisane jako **tekst, bez zmian** względem źród�
 | Kolumna | Znaczenie |
 |---|---|
 | ticker, name, market, currency, sector | symbol, nazwa, rynek, waluta notowania, sektor |
-| instrument_type | `stock` (spółka) / `index` (indeks odniesienia) |
+| instrument_type | `stock` (spółka); model przewiduje też `index` (indeks odniesienia) – obecnie brak indeksów, zob. D-13 |
 | sec_cik | CIK w SEC (tylko spółki z USA) |
 | in_portfolio, portfolio_weight | czy w portfelu modelowym i z jaką wagą |
 
@@ -155,7 +155,7 @@ Wszystkie kolumny biznesowe zapisane jako **tekst, bez zmian** względem źród�
 | drawdown | obsunięcie kapitału od szczytu (≤ 0) |
 | rolling_volatility | zmienność roczna z ostatnich 30 sesji |
 
-### `risk_return` – klucz: ticker (spółki, indeksy i `PORTFEL`), okres od startu portfela
+### `risk_return` – klucz: ticker (spółki i `PORTFEL`), okres od startu portfela
 | Kolumna | Znaczenie |
 |---|---|
 | start_date, end_date, years, n_days | okres analizy |

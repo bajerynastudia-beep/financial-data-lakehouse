@@ -20,6 +20,9 @@
   limity zużycia, brak gwarancji dostępności.
 - FMP wymaga klucza API; limit zapytań, dostępne symbole i maksymalny zasięg historii zależą od planu. Pełna historia od 2023 r. NIE jest gwarantowana.
 - Gold jest przebudowywany w całości przy każdym uruchomieniu – wystarczające dla obecnego wolumenu.
+- Bramka jakości blokująca publikację działa dla Silver. 7 testów Gold uruchamia się po nadpisaniu tabel Gold:
+  ich niepowodzenie zatrzymuje job i wysyła alert, ale dashboard może już czytać nowe tabele. Rozwiązanie
+  produkcyjne: budowa Gold w tabelach tymczasowych i podmiana dopiero po przejściu testów.
 - Watermark Silver opiera się o `_ingest_ts`: jeśli cała nowa partia trafi do kwarantanny, przy kolejnym
   uruchomieniu zostanie przetworzona ponownie (duplikaty w kwarantannie, nie w Silver).
 - Testy jednostkowe transformacji działają na lokalnym Sparku (GitHub Actions); integracja z Delta/Unity Catalog
